@@ -1,22 +1,18 @@
 #include <string>
-class Error{
-    private:
-        std::string name;
-        std::string message;
-        int line_number;
+#include <iostream>
+#include "errors.h"
 
-    public:
-        Error(std::string n, std::string m, int ln){
-            name = n;
-            message = m;
-            line_number = ln;
-        }
-};
 
-Error create_error(std::string type, std::string msg, int ln){
-    return Error(type, msg, ln);
+Error::Error(std::string msg, std::string c, int ln){
+    message = msg;
+    line_number = ln;
+    culprit = c;
 }
 
-
+void Error::print(){
+    std::cout << "Error on line " << line_number << ": ";
+    std::cout << culprit;
+    std::cout << message << std::endl;
+}
 
 

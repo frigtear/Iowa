@@ -1,24 +1,17 @@
-#ifndef ERROR_H
-#define ERROR_H
+#ifndef ERRORS_H
+#define ERRORS_H
 
 #include <string>
 
 class Error {
 private:
-    std::string name;
     std::string message;
+    std::string culprit;
     int line_number;
 
 public:
-    // Constructor declaration
-    Error(const std::string& n, const std::string& m, int ln);
-
-    // Getter functions (optional, declarations)
-    const std::string& getName() const;
-    const std::string& getMessage() const;
-    int getLineNumber() const;
+    Error(std::string m, std::string c, int ln);
+    void print();
 };
 
-Error create_error(const std::string& type, const std::string& msg, int ln);
-
-#endif // ERROR_H
+#endif 
