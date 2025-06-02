@@ -11,7 +11,6 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) 
 
-
 bin/%.o: src/%.cpp
 	mkdir -p bin
 	$(CXX) $(CXXFLAGS) -c $< -o $@

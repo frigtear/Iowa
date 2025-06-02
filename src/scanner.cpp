@@ -7,6 +7,7 @@
 
 #include "errors.h"
 #include "lexemes.h"
+#include "scanner.h"
 
 
 void fail(std::string message){
@@ -63,22 +64,9 @@ std::string scan_identifier(std::ifstream& source){
         next = source.peek();
         identifier += curr;
     }
-/*
-    std::unordered_map<std::string, TokenType> keywords = {
-        {"If", TokenType::If},
-        {"Else", TokenType::Else},
-        {"Iterate_through", TokenType::Iterate_through},
-        {"With", TokenType::With},
-        {"While", TokenType::While},
-        {"Condition", TokenType::Condition},
-        {"Integer", TokenType::Integer},
-        {"String", TokenType::String}
-    };
-    if (keywords.is)
-    */
+
     return identifier;
 };
-
 
 void go_back_one(std::ifstream& source) {
     std::streampos position = source.tellg(); 
@@ -88,7 +76,7 @@ void go_back_one(std::ifstream& source) {
     }
 }
 
-int main(int argc, char* argv[]){
+std::vector<Lexeme> scan_source(char* path){
 
     bool errored = false;
     int line_number = 0;
@@ -96,11 +84,7 @@ int main(int argc, char* argv[]){
     std::string value;
 
     std::vector<Error> errors;
-    if (argc != 2){
-        fail("ERROR: pass in 1 argument");
-    }
 
-    char* path = argv[1];
     std::ifstream source_code(path);
 
     if (!source_code.is_open()){
@@ -130,6 +114,7 @@ int main(int argc, char* argv[]){
             }
             case '}':
                 add_token(lexemes, "}", TokenType::Bracket_Close);
+                break;
             case '+':{
                 add_token(lexemes, "+", TokenType::Operator);
                 break;
@@ -183,20 +168,20 @@ int main(int argc, char* argv[]){
                 errored = true;
                 Error error("Invalid Syntax", "", line_number);
                 errors.push_back(error);
+
                 
         }
     }
+    return lexemes;
 
-    for(Lexeme lexeme : lexemes){
-        std::cout << lexeme.get_value() << " ";
-    }
-
+    /*
     if (errored){
         for(int i = 0; i<errors.size(); i++){
             errors.at(i).print();
         }
         return -1;
     }
+        */
     
-    return 0;
+   // return 0;
 }

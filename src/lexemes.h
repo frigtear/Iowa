@@ -12,23 +12,13 @@ enum class TokenType{
     Identifier,
     Assignment,
 };
-/*
-If,
-    Else,
-    Iterate_through,
-    With,
-    While, 
-    Condition,
-    Integer,
-    String,
-};
-*/
 
 class Lexeme{
     public:
         Lexeme(std::string val, TokenType type);
         std::string get_value() const;
         TokenType get_type() const;
+        std::string get_type_string() const;
 
     private:
         std::string value;
