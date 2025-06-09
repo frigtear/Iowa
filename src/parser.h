@@ -7,11 +7,11 @@
 class Parser{
     public:
         std::vector<Lexeme>* tokens;
-        
+        int current = 0;
         Parser(std::vector<Lexeme>* t) : tokens(t) {}
 
-    private:
-
+    private: 
+        bool match()
 };
 
-#endif
+#endif 

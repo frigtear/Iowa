@@ -173,15 +173,4 @@ std::vector<Lexeme> scan_source(char* path){
         }
     }
     return lexemes;
-
-    /*
-    if (errored){
-        for(int i = 0; i<errors.size(); i++){
-            errors.at(i).print();
-        }
-        return -1;
-    }
-        */
-    
-   // return 0;
 }

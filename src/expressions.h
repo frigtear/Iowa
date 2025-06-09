@@ -3,15 +3,15 @@
 
 #include <string>
 #include <vector>
-#include "errors.h"  // Assuming you have a file for handling errors
+#include "errors.h"  
 
-// Base class for all expressions
+
 class Expression {
 public:
     virtual ~Expression() = default;
 };
 
-// Literal values (Number or String)
+
 class Literal : public Expression {
 public:
     std::string value;
@@ -19,7 +19,7 @@ public:
     Literal(const std::string& value) : value(value) {}
 };
 
-// Identifier
+
 class Identifier : public Expression {
 public:
     std::string name;
@@ -27,7 +27,7 @@ public:
     Identifier(const std::string& name) : name(name) {}
 };
 
-// EqualityOperator (==, !=)
+
 class EqualityOperator : public Expression {
 public:
     std::string op;
@@ -35,7 +35,7 @@ public:
     EqualityOperator(const std::string& op) : op(op) {}
 };
 
-// ComparisonOperator (<, >, <=, >=)
+
 class ComparisonOperator : public Expression {
 public:
     std::string op;
@@ -43,7 +43,7 @@ public:
     ComparisonOperator(const std::string& op) : op(op) {}
 };
 
-// Binary Expression (for any binary operation: +, -, *, /, ==, !=, etc.)
+
 class BinaryExpression : public Expression {
 public:
     Expression* left;
@@ -59,7 +59,7 @@ public:
     }
 };
 
-// Assignment
+
 class Assignment : public Expression {
 public:
     Identifier* variable;
@@ -74,7 +74,7 @@ public:
     }
 };
 
-// Expression statement
+
 class ExpressionStatement : public Expression {
 public:
     Expression* expr;
@@ -86,7 +86,7 @@ public:
     }
 };
 
-// Block: a sequence of statements
+
 class Block : public Expression {
 public:
     std::vector<Expression*> statements;
@@ -100,12 +100,12 @@ public:
     }
 };
 
-// If statement
+
 class IfStatement : public Expression {
 public:
     Expression* condition;
     Block* thenBlock;
-    Block* elseBlock;  // Can be nullptr
+    Block* elseBlock;  
 
     IfStatement(Expression* condition, Block* thenBlock, Block* elseBlock = nullptr)
         : condition(condition), thenBlock(thenBlock), elseBlock(elseBlock) {}
@@ -117,4 +117,4 @@ public:
     }
 };
 
-#endif // EXPRESSIONS_H
+#endif 
