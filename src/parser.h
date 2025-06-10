@@ -1,17 +1,28 @@
 #ifndef PARSER_H
-#define PARESER_H
+#define PARSER_H
 
 #include "expressions.h"
 #include <vector>
 
 class Parser{
     public:
-        std::vector<Lexeme>* tokens;
-        int current = 0;
         Parser(std::vector<Lexeme>* t) : tokens(t) {}
 
+        Lexeme peek();
+        Lexeme previous();
+        Lexeme advance();
+        Lexeme next();
+        bool match(std::vector<Lexeme> tokens);
+        
+        Expression expression();
+        Expression equality();
+
+
     private: 
-        bool match()
+        std::vector<Lexeme>* tokens;
+        int current = 0;
+
+        
 };
 
 #endif 
