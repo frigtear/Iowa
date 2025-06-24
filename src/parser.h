@@ -13,10 +13,14 @@ class Parser{
         Lexeme next();
         bool match(std::vector<std::string> types);
        // bool match(std::vector<std::string> strings);
-        Expression expression();
-        Expression equality();
-        Expression comparison();
-        Expression term();
+        Expression* expression();
+        Expression* equality();
+        Expression* comparison();
+        Expression* term();
+        Expression* primary();
+        Expression* factor();
+    
+        
 
     private: 
         std::vector<Lexeme>* tokens;
