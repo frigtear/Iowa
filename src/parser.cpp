@@ -25,27 +25,75 @@ bool Parser::match(std::vector<std::string> types) {
     return false;
 }
 
-Expression Parser::expression() {
+
+bool Parser::match(std::vector<TokenType> typesg){
+    for (auto type : types){
+        if (peek().get_type() == type){
+            current++;
+            return true;
+        }
+    }
+}
+
+Expression* Parser::expression() {
     return equality();
 }
 
-Expression Parser::equality() {
-    Expression* expr = comparison(); // You need to implement comparison()
+Expression* Parser::equality() {
+    Expression* expr = comparison();
     while (match({"==", "!="})) {
         std::string op = previous().get_value();
         Expression* right = comparison();
-        expr = BinaryExpression(expr, op, right); // Adjust to your AST node constructor
+        Expression* expr = new BinaryExpression(expr, op, right); // Allocate on heap and assign to expr
     }
     return expr;
 }
 
-
-Expression Parser::comparison(){
+Expression* Parser::comparison(){
     Expression* expr = term(); // You need to implement comparison()
     while (match({">", "<", ">=", "<="})) {
         std::string op = previous().get_value();
         Expression* right = term();
-        expr = BinaryExpression(expr, op, right); // Adjust to your AST node constructor
+        Expression* expr = new BinaryExpression(expr, op, right); // Adjust to your AST node constructor
     }
     return expr;
+}
+
+Expression* Parser::term(){
+    Expression* expr = factor();
+    while (match({"+", "-"})){
+        std::string op = previous().get_value();
+        Expression* right = factor();
+        Expression* expr = new BinaryExpression(expr, op, right);
+    }
+    return expr;
+}
+
+Expression* Parser::factor(){
+    Expression* expr = primary();
+    while (match({"*", "/"})){
+        std::string op = previous().get_value();
+        Expression* right = primary();
+        Expression* expr = new BinaryExpression(expr, op, right);
+    }
+    return expr;
+}
+
+Expression* Parser::primary() {
+    if (match({TokenType::Identifier})) {
+        return new Identifier(previous().get_value());
+    }
+    if (match({TokenType::Digit, TokenType::String_Literal})) {
+        return new Literal(previous().get_value());
+    }
+    if (match({TokenType::Bracket_Open})) {
+        Expression* expr = expression();
+        if (!match({TokenType::Bracket_Close})) {
+            // Handle error: expected ')'
+        }
+        return expr;
+
+    }
+    // Handle error: expected expression
+    return nullptr;
 }
