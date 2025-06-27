@@ -11,9 +11,10 @@ class Parser{
         Lexeme peek();
         Lexeme previous();
         Lexeme next();
+
         bool match(std::vector<std::string> types);
-        bool match(std::vector<TokenType> types);
-       // bool match(std::vector<std::string> strings);
+        bool match(std::vector<TokenType> types);    
+
         Expression* expression();
         Expression* equality();
         Expression* comparison();
@@ -21,8 +22,15 @@ class Parser{
         Expression* primary();
         Expression* factor();
         Expression* primary();
-
-    
+        Expression* assignment();
+        Expression* expression_statement();
+        Expression* if_statement();
+        Expression* literal();
+        Expression* identifier();
+        Expression* number();
+        Expression* string_literal(); 
+        Expression* equality_operator();
+        Expression* comparison_operator();
         
 
     private: 
