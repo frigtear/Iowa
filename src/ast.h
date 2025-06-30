@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "errors.h"  
+#include "token.h"
 
 
 class Expression {
@@ -11,11 +12,14 @@ public:
     virtual ~Expression() = default;
 };
 
+class Statement {
+public:
+    virtual ~Statement() = default;
+};
 
 class Literal : public Expression {
 public:
     std::string value;
-
     Literal(const std::string& value) : value(value) {}
 };
 
@@ -25,22 +29,6 @@ public:
     std::string name;
 
     Identifier(const std::string& name) : name(name) {}
-};
-
-
-class EqualityOperator : public Expression {
-public:
-    std::string op;
-
-    EqualityOperator(const std::string& op) : op(op) {}
-};
-
-
-class ComparisonOperator : public Expression {
-public:
-    std::string op;
-
-    ComparisonOperator(const std::string& op) : op(op) {}
 };
 
 
@@ -60,13 +48,12 @@ public:
 };
 
 
-class Assignment : public Expression {
+class Assignment : public Statement {
 public:
     Identifier* variable;
     Expression* value;
 
-    Assignment(Identifier* variable, Expression* value)
-        : variable(variable), value(value) {}
+    Assignment(Identifier* variable, Expression* value) : variable(variable), value(value) {}
 
     ~Assignment() {
         delete variable;

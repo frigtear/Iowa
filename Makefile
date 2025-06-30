@@ -17,7 +17,6 @@ bin/%.o: src/%.cpp
 
 .PHONY: all clean
 
-
 run:
 	make
 	./bin/Iowa bin/tests/test.ia
