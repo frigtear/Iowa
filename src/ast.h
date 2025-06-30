@@ -62,7 +62,7 @@ public:
 };
 
 
-class ExpressionStatement : public Expression {
+class ExpressionStatement : public Statement {
 public:
     Expression* expr;
 
@@ -74,11 +74,11 @@ public:
 };
 
 
-class Block : public Expression {
+class Block : public Statement {
 public:
-    std::vector<Expression*> statements;
+    std::vector<Statement*> statements;
 
-    Block(const std::vector<Expression*>& statements)
+    Block(const std::vector<Statement*>& statements)
         : statements(statements) {}
 
     ~Block() {
@@ -88,7 +88,7 @@ public:
 };
 
 
-class IfStatement : public Expression {
+class IfStatement : public Statement {
 public:
     Expression* condition;
     Block* thenBlock;
@@ -102,6 +102,17 @@ public:
         delete thenBlock;
         if (elseBlock) delete elseBlock;
     }
+};
+
+
+class Program{
+    public:
+        std::vector<Statement*> statements;
+        Program(const std::vector<Statement*>){
+            for (auto stmt : statements){
+                delete stmt;
+            }
+        }
 };
 
 #endif 
