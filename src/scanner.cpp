@@ -2,11 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <variant>
-#include <unordered_map>
 
 #include "errors.h"
-#include "lexemes.h"
+#include "token.h"
 #include "scanner.h"
 
 
@@ -15,13 +13,21 @@ void fail(std::string message){
     exit(1);
 }
 
-void add_token(std::vector<Lexeme>& tokens, std::string value, TokenType type){
-    Lexeme lex(value, type);
-    tokens.push_back(lex);
-}
-
 bool isNumeric(char character){
     return ('0' <= character  && character <= '9');
+}
+
+Scanner::Scanner(){
+    tokens = std::vector<Token> {};
+};
+
+void Scanner::add_token(std::string token_value, TokenType token_type){
+    Token token(token_value, token_type);
+    tokens.push_back(token);
+};
+
+std::vector<Token> Scanner::get_tokens(){
+    return tokens;
 }
 
 std::string scan_string(std::ifstream& source){
@@ -53,7 +59,7 @@ std::string scan_digit(std::ifstream& source){
     return digit;
 };
 
-std::string scan_identifier(std::ifstream& source){
+std::string scan_word(std::ifstream& source){
 
     std::string identifier = "";
     char next = source.peek();
@@ -76,7 +82,7 @@ void go_back_one(std::ifstream& source) {
     }
 }
 
-std::vector<Lexeme> scan_source(char* path){
+std::vector<Token> scan_source(char* path){
 
     bool errored = false;
     int line_number = 0;
@@ -91,7 +97,7 @@ std::vector<Lexeme> scan_source(char* path){
         fail("ERROR: input file could not be opened");
     }
 
-    std::vector<Lexeme> lexemes;
+    Scanner scanner;
 
     while (source_code.get(character)){
 
@@ -99,37 +105,37 @@ std::vector<Lexeme> scan_source(char* path){
 
             case '(':
             {
-                add_token(lexemes, "(", TokenType::Bracket_Open);
+                scanner.add_token("(", TokenType::ParenthesisOpen);
                 break;
             }
             case ')':
             {
-                add_token(lexemes, ")", TokenType::Bracket_Close);
+                scanner.add_token(")", TokenType::ParenthesisClose);
                 break;
             }
             case '{':
             {
-                add_token(lexemes, "{", TokenType::Bracket_Open);
+                scanner.add_token("{", TokenType::BracketOpen);
                 break;
             }
             case '}':
-                add_token(lexemes, "}", TokenType::Bracket_Close);
+                scanner.add_token("}", TokenType::BracketClose);
                 break;
             case '+':{
-                add_token(lexemes, "+", TokenType::Operator);
+                scanner.add_token("+", TokenType::Plus);
                 break;
             }
             case '-':{
-                add_token(lexemes, "-", TokenType::Operator);
+                scanner.add_token("-", TokenType::Minus);
                 break;
             }
             case '=':{
                 if (source_code.peek() == '='){
-                    add_token(lexemes, "==", TokenType::Operator);
+                    scanner.add_token("==", TokenType::EqualsEquals);
                     source_code.get();
                 }
                 else{
-                    add_token(lexemes, "=", TokenType::Assignment);
+                    scanner.add_token("=", TokenType::Equals);
                 }
                 break;
             
@@ -144,33 +150,40 @@ std::vector<Lexeme> scan_source(char* path){
             case '"':
                 value = scan_string(source_code);
                 std::cout << "read string: " << value << " from source code" << std::endl;
-                add_token(lexemes, value, TokenType::String_Literal);
-                break;
-            
+                scanner.add_token(value, TokenType::String);         
 
             default:
                 if (isNumeric(character)){
                     go_back_one(source_code);
                     std::string value = scan_digit(source_code);
-                    add_token(lexemes, value, TokenType::Digit);
+                    scanner.add_token(value, TokenType::Number);
                     std::cout << "read digit: " << value << " from input" << std::endl;
                     break;
                 }
 
                 if (isalpha(character)){
                     go_back_one(source_code);
-                    std::string value = scan_identifier(source_code);
-                    add_token(lexemes, value, TokenType::Identifier);
-                    std::cout << "read identifier: " << value << " from input" << std::endl;
-                    break;
+                    std::string value = scan_word(source_code);
+            
+                    if (value == "if"){
+                        scanner.add_token(value, TokenType::If);
+                    }
+                    else if (value == "else"){
+                        scanner.add_token(value, TokenType::Else);
+                    }
+                    else if (value == "say"){
+                        scanner.add_token(value, TokenType::Say);
+                    }
+                    else{
+                        scanner.add_token(value, TokenType::Identifier);
+                    };       
+                    break; 
                 }
-
+              
                 errored = true;
                 Error error("Invalid Syntax", "", line_number);
                 errors.push_back(error);
-
-                
         }
     }
-    return lexemes;
+    return scanner.get_tokens();
 }

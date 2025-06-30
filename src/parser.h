@@ -2,15 +2,16 @@
 #define PARSER_H
 
 #include "expressions.h"
+#include "token.h"
 #include <vector>
 
 class Parser{
     public:
-        Parser(std::vector<Lexeme>* t) : tokens(t) {}
+        Parser(std::vector<Token>* t) : tokens(t) {}
 
-        Lexeme peek();
-        Lexeme previous();
-        Lexeme next();
+        Token peek();
+        Token previous();
+        Token next();
 
         bool match(std::vector<std::string> types);
         bool match(std::vector<TokenType> types);    
@@ -21,7 +22,6 @@ class Parser{
         Expression* term();
         Expression* primary();
         Expression* factor();
-        Expression* primary();
         Expression* assignment();
         Expression* expression_statement();
         Expression* if_statement();
@@ -34,7 +34,7 @@ class Parser{
         
 
     private: 
-        std::vector<Lexeme>* tokens;
+        std::vector<Token>* tokens;
         int current = 0;
 };
 

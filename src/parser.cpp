@@ -1,38 +1,29 @@
 #include "parser.h"
-#include "lexemes.h"
+#include "token.h"
 #include <vector>
 
-Lexeme Parser::peek() {
+Token Parser::peek() {
     return tokens->at(current);
 }
 
-Lexeme Parser::previous() {
+Token Parser::previous() {
     return tokens->at(current - 1);
 }
 
-Lexeme Parser::next() {
+Token  Parser::next() {
     current++;
     return peek();
 }
 
-bool Parser::match(std::vector<std::string> types) {
-    for (auto type : types) {
-        if (peek().get_value() == type) {
-            current++;
-            return true;
-        }
-    }
-    return false;
-}
 
-
-bool Parser::match(std::vector<TokenType> typesg){
+bool Parser::match(std::vector<TokenType> types){
     for (auto type : types){
         if (peek().get_type() == type){
             current++;
             return true;
         }
     }
+    return false;
 }
 
 Expression* Parser::expression() {
@@ -41,40 +32,40 @@ Expression* Parser::expression() {
 
 Expression* Parser::equality() {
     Expression* expr = comparison();
-    while (match({"==", "!="})) {
+    while (match({TokenType::EqualsEquals, TokenType::NotEqual})) {
         std::string op = previous().get_value();
         Expression* right = comparison();
-        Expression* expr = new BinaryExpression(expr, op, right); // Allocate on heap and assign to expr
+        expr = new BinaryExpression(expr, op, right); // Fixed: don't redeclare expr
     }
     return expr;
 }
 
 Expression* Parser::comparison(){
-    Expression* expr = term(); // You need to implement comparison()
-    while (match({">", "<", ">=", "<="})) {
+    Expression* expr = term();
+    while (match({TokenType::GreaterThan, TokenType::LessThan})) {
         std::string op = previous().get_value();
         Expression* right = term();
-        Expression* expr = new BinaryExpression(expr, op, right); // Adjust to your AST node constructor
+        expr = new BinaryExpression(expr, op, right); // Fixed: don't redeclare expr
     }
     return expr;
 }
 
 Expression* Parser::term(){
     Expression* expr = factor();
-    while (match({"+", "-"})){
+    while (match({TokenType::Plus, TokenType::Minus})){
         std::string op = previous().get_value();
         Expression* right = factor();
-        Expression* expr = new BinaryExpression(expr, op, right);
+        expr = new BinaryExpression(expr, op, right); // Fixed: don't redeclare expr
     }
     return expr;
 }
 
 Expression* Parser::factor(){
     Expression* expr = primary();
-    while (match({"*", "/"})){
+    while (match({TokenType::Multiply, TokenType::Divide})){
         std::string op = previous().get_value();
         Expression* right = primary();
-        Expression* expr = new BinaryExpression(expr, op, right);
+        expr = new BinaryExpression(expr, op, right); // Fixed: don't redeclare expr
     }
     return expr;
 }
@@ -83,16 +74,15 @@ Expression* Parser::primary() {
     if (match({TokenType::Identifier})) {
         return new Identifier(previous().get_value());
     }
-    if (match({TokenType::Digit, TokenType::String_Literal})) {
+    if (match({TokenType::Number, TokenType::String})) {
         return new Literal(previous().get_value());
     }
-    if (match({TokenType::Bracket_Open})) {
+    if (match({TokenType::ParenthesisOpen})) {
         Expression* expr = expression();
-        if (!match({TokenType::Bracket_Close})) {
+        if (!match({TokenType::ParenthesisClose})) {
             // Handle error: expected ')'
         }
         return expr;
-
     }
     // Handle error: expected expression
     return nullptr;

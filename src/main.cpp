@@ -1,6 +1,6 @@
 #include "scanner.h"
 #include "parser.h"
-#include "lexemes.h"
+#include "token.h"
 
 int main(int argc, char* argv[]){
     if (argc != 2){
@@ -8,9 +8,9 @@ int main(int argc, char* argv[]){
     }
 
     char* path = argv[1];
-    std::vector<Lexeme> lexemes = scan_source(path);
+    std::vector<Token> tokens = scan_source(path);
     
-    for (const auto& lex : lexemes) {
-        std::cout << lex.get_type_string() << "  ___  " << lex.get_value() << " ___ ";
+    for (const auto& lex : tokens) {
+        std::cout << lex.get_type_string() << " -> " << lex.get_value() << " -> ";
     }
 }

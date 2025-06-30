@@ -16,3 +16,9 @@ bin/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: all clean
+
+
+run:
+	make
+	./bin/Iowa bin/tests/test.ia
+	
