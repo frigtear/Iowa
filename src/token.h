@@ -9,6 +9,8 @@ enum class TokenType{
     Minus,
     Multiply,
     Divide,
+    Or,
+    And,
     Equals,
     EqualsEquals,
     NotEqual,
@@ -27,6 +29,7 @@ enum class TokenType{
 
     String,
     Number,
+    Boolean,
 
     Identifier,
 

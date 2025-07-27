@@ -129,6 +129,26 @@ std::vector<Token> scan_source(char* path){
                 scanner.add_token("-", TokenType::Minus);
                 break;
             }
+            case '*': {
+                scanner.add_token("*", TokenType::Multiply);
+                break;
+            }
+            case '/': {
+                scanner.add_token("/", TokenType::Divide);
+                break;
+            }
+            case '|':
+                if (source_code.peek() == '|'){
+                    scanner.add_token("||", TokenType::Or);
+                    source_code.get();
+                }
+                break;
+            case '&':
+                if (source_code.peek() == '&'){
+                    scanner.add_token("&&", TokenType::And);
+                    source_code.get();
+                }
+                break;
             case '=':{
                 if (source_code.peek() == '='){
                     scanner.add_token("==", TokenType::EqualsEquals);
@@ -157,7 +177,6 @@ std::vector<Token> scan_source(char* path){
                     go_back_one(source_code);
                     std::string value = scan_digit(source_code);
                     scanner.add_token(value, TokenType::Number);
-                    std::cout << "read digit: " << value << " from input" << std::endl;
                     break;
                 }
 
@@ -173,6 +192,12 @@ std::vector<Token> scan_source(char* path){
                     }
                     else if (value == "say"){
                         scanner.add_token(value, TokenType::Say);
+                    }
+                    else if (value == "true"){
+                        scanner.add_token(value, TokenType::Boolean);
+                    }
+                    else if (value == "false"){
+                        scanner.add_token(value, TokenType::Boolean);
                     }
                     else{
                         scanner.add_token(value, TokenType::Identifier);

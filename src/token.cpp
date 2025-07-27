@@ -20,6 +20,8 @@ std::string Token::get_type_string(TokenType type){
         case TokenType::Minus: return "Minus";
         case TokenType::Multiply: return "Multiply";
         case TokenType::Divide: return "Divide";
+        case TokenType::Or: return "Or";
+        case TokenType::And: return "And";
         case TokenType::Equals: return "Equals";
         case TokenType::EqualsEquals: return "EqualsEquals";
         case TokenType::NotEqual: return "NotEqual";
@@ -35,6 +37,7 @@ std::string Token::get_type_string(TokenType type){
         case TokenType::Say: return "Say";
         case TokenType::String: return "String";
         case TokenType::Number: return "Number";
+        case TokenType::Boolean: return "Bool";
         case TokenType::Identifier: return "Identifier";
         case TokenType::Eof: return "EOF";
         default: return "Unknown";

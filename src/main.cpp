@@ -12,13 +12,14 @@ int main(int argc, char* argv[]) {
 
     char* path = argv[1];
     std::vector<Token> tokens = scan_source(path);
+    
+    for (const Token& t : tokens) {
+        std::cout << Token::get_type_string(t.get_type()) << ": " << t.get_value() << "\n";
+    }
 
     Parser parser(tokens);
     Expression* expr = parser.parse();
 
-    for (const Token& t : tokens) {
-        std::cout << Token::get_type_string(t.get_type()) << ": " << t.get_value() << "\n";
-    }
     Parser::print_ast(expr);
 
     try {

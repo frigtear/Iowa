@@ -22,6 +22,8 @@ class Parser{
         bool match(std::vector<TokenType> types);    
 
         Expression* expression();
+        Expression* logic_or();
+        Expression* logic_and();
         Expression* equality();
         Expression* comparison();
         Expression* term();
@@ -42,6 +44,7 @@ class Parser{
 
         evaluation evaluate_literal(Literal* literal);
         evaluation evaluate_identifier(Identifier* identifier);
+        evaluation evaluate_binary(BinaryExpression* binary);
 
         evaluation evaluate_expression(Expression* root);
 
@@ -53,4 +56,4 @@ class Parser{
         int number_of_tokens;
 };
 
-#endif
+#endif  
