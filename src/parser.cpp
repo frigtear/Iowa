@@ -43,7 +43,7 @@ Expression* Parser::expression() {
 Expression* Parser::equality() {
     Expression* expr = comparison();
     while (match({TokenType::EqualsEquals, TokenType::NotEqual})) {
-        std::string op = previous().get_value();
+        TokenType op = previous().get_type();
         Expression* right = comparison();
         expr = new BinaryExpression(expr, op, right); 
     }
@@ -53,9 +53,9 @@ Expression* Parser::equality() {
 Expression* Parser::comparison(){
     Expression* expr = term();
     while (match({TokenType::GreaterThan, TokenType::LessThan})) {
-        std::string op = previous().get_value();
+        TokenType op = previous().get_type();
         Expression* right = term();
-        expr = new BinaryExpression(expr, op, right); // Fixed: don't redeclare expr
+        expr = new BinaryExpression(expr, op, right); 
     }
     return expr;
 }
@@ -63,9 +63,9 @@ Expression* Parser::comparison(){
 Expression* Parser::term(){
     Expression* expr = factor();
     while (match({TokenType::Plus, TokenType::Minus})){
-        std::string op = previous().get_value();
+        TokenType op = previous().get_type();
         Expression* right = factor();
-        expr = new BinaryExpression(expr, op, right); // Fixed: don't redeclare expr
+        expr = new BinaryExpression(expr, op, right); 
     }
     return expr;
 }
@@ -73,9 +73,9 @@ Expression* Parser::term(){
 Expression* Parser::factor(){
     Expression* expr = primary();
     while (match({TokenType::Multiply, TokenType::Divide})){
-        std::string op = previous().get_value();
+        TokenType op = previous().get_type();
         Expression* right = primary();
-        expr = new BinaryExpression(expr, op, right); // Fixed: don't redeclare expr
+        expr = new BinaryExpression(expr, op, right); 
     }
     return expr;
 }
@@ -85,7 +85,7 @@ Expression* Parser::primary() {
         return new Identifier(previous().get_value());
     }
     if (match({TokenType::Number, TokenType::String})) {
-        return new Literal(previous().get_value());
+        return new Literal(previous().get_value(), previous().get_type());
     }
     if (match({TokenType::ParenthesisOpen})) {
         Expression* expr = expression();
@@ -102,10 +102,11 @@ Expression* Parser::parse(){
     return expression();
 }
 
+
 void Parser::print_ast(Expression* expr){
     if (auto binary = dynamic_cast<BinaryExpression*>(expr)) {
         print_ast(binary->left);
-        std::cout << binary->op << " ";
+        std::cout << Token::get_type_string(binary->op) << " ";
         print_ast(binary->right);
 
     }
@@ -116,4 +117,52 @@ void Parser::print_ast(Expression* expr){
         std::cout << literal->value << " ";
     }
 }
+
+
+Parser::evaluation Parser::evaluate_literal(Literal* literal){
+    std::string literal_value = literal->value;
+    TokenType literal_type = literal->type;
+
+    if (literal_type == TokenType::Number){
+        return std::stoi(literal_value);
+    }
+    else{
+        return literal_value;
+    }
+    
+}
+
+Parser::evaluation Parser::evaluate_identifier(Identifier* identifier){
+}
+
+
+Parser::evaluation Parser::evaluate_expression(Expression* expr){
+    if (auto binary = dynamic_cast<BinaryExpression*>(expr)) {
+        evaluation left = evaluate_expression(binary->left);
+        TokenType op = binary->op;
+        evaluation right = evaluate_expression(binary->right);
+
+        if (op == TokenType::Plus){
+            return std::get<int>(left) + std::get<int>(right);
+        }
+        else if (op == TokenType::Minus){
+            return std::get<int>(left) - std::get<int>(right);
+        }
+        else if (op == TokenType::Multiply){
+            return std::get<int>(left) * std::get<int>(right);
+        }
+        else if (op == TokenType::Divide){
+            return std::get<int>(left) / std::get<int>(right);
+        }
+        throw std::runtime_error("Unsupported operator or operand types");
+    }
+    else if (auto identifier = dynamic_cast<Identifier*>(expr)){
+        throw std::runtime_error("Identifiers are not implemented yet"); 
+    }
+    else if (auto literal = dynamic_cast<Literal*>(expr)){
+        return evaluate_literal(literal);
+    }
+}
+
+
 

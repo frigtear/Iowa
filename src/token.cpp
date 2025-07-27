@@ -14,7 +14,7 @@ TokenType Token::get_type() const {
     return type;
 }
 
-std::string Token::get_type_string() const{
+std::string Token::get_type_string(TokenType type){
     switch (type) {
         case TokenType::Plus: return "Plus";
         case TokenType::Minus: return "Minus";

@@ -20,9 +20,9 @@ public:
 class Literal : public Expression {
 public:
     std::string value;
-    Literal(const std::string& value) : value(value) {}
+    TokenType type;
+    Literal(const std::string& value, TokenType t) : value(value), type(t) {}
 };
-
 
 class Identifier : public Expression {
 public:
@@ -35,10 +35,10 @@ public:
 class BinaryExpression : public Expression {
 public:
     Expression* left;
-    std::string op;
+    TokenType op;
     Expression* right;
 
-    BinaryExpression(Expression* left, const std::string& op, Expression* right)
+    BinaryExpression(Expression* left, TokenType op, Expression* right)
         : left(left), op(op), right(right) {}
 
     ~BinaryExpression() {
@@ -46,8 +46,6 @@ public:
         delete right;
     }
 };
-
-
 
 
 class Assignment : public Statement {

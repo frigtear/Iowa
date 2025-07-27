@@ -38,7 +38,7 @@ class Token{
         Token(std::string val, TokenType type);
         std::string get_value() const;
         TokenType get_type() const;
-        std::string get_type_string() const;
+        static std::string get_type_string(TokenType type);
 
     private:
         std::string value;
