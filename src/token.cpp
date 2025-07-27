@@ -36,6 +36,7 @@ std::string Token::get_type_string() const{
         case TokenType::String: return "String";
         case TokenType::Number: return "Number";
         case TokenType::Identifier: return "Identifier";
+        case TokenType::Eof: return "EOF";
         default: return "Unknown";
     }
 }

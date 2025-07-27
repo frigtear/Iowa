@@ -29,6 +29,8 @@ enum class TokenType{
     Number,
 
     Identifier,
+
+    Eof,
 };
 
 class Token{

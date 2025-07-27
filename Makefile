@@ -19,5 +19,5 @@ bin/%.o: src/%.cpp
 
 run:
 	make
-	./bin/Iowa bin/tests/test.ia
+	./bin/Iowa tests/test.ia
 	

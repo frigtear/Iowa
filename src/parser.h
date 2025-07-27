@@ -1,13 +1,13 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "expressions.h"
+#include "ast.h"
 #include "token.h"
 #include <vector>
 
 class Parser{
     public:
-        Parser(std::vector<Token>* t) : tokens(t) {}
+        Parser(std::vector<Token> t);
 
         Token peek();
         Token previous();
@@ -31,11 +31,16 @@ class Parser{
         Expression* string_literal(); 
         Expression* equality_operator();
         Expression* comparison_operator();
+        Expression* parse();
+
+        static void print_ast(Expression* root);
+
         
 
     private: 
-        std::vector<Token>* tokens;
-        int current = 0;
+        std::vector<Token> tokens;
+        int current;
+        int number_of_tokens;
 };
 
 #endif
