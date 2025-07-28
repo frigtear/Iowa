@@ -11,14 +11,11 @@ Iowa is a simple, high‑level interpreted language designed for readability. In
 
 1. [Features](#features)
 2. [Prerequisites](#prerequisites)
-3. [Installation](#installation)
 4. [Building from Source](#building-from-source)
 5. [Running Tests](#running-tests)
 6. [Usage](#usage)
 7. [Examples](#examples)
-8. [Configuration](#configuration)
-9. [Contributing](#contributing)
-10. [License](#license)
+
 
 ---
 
@@ -26,8 +23,8 @@ Iowa is a simple, high‑level interpreted language designed for readability. In
 
 * **Interpreted**: No compilation step—run scripts directly.
 * **High-Level Syntax**: Clean, human-readable code.
-* **Static Typing**: Readibility.
-* **Cross-Platform**: Build and run on Linux, Macos (Windows support TBA)
+* **Static Typing**
+* **Platform**: Anything Unix
 
 ---
 
@@ -83,3 +80,5 @@ Run it:
 # Output: Hello, World!
 ```
 
+## Examples
+ To be added
