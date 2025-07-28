@@ -76,7 +76,7 @@ bin/Iowa path/to/script.ia
 Run it:
 
 ```bash
-./iowa hello.iw
+bin/iowa hello.ia
 # Output: Hello, World!
 ```
 
