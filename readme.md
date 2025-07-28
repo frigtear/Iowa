@@ -32,7 +32,7 @@ Iowa is a simple, high‑level interpreted language designed for readability. In
 
 Before you begin, ensure you have the following installed on your system:
 
-* `clang++`)
+* `clang`
 * GNU Make
 * [Git](https://git-scm.com/)
 
