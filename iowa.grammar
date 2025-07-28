@@ -1,4 +1,7 @@
-Program         → Statement* EOF ;
+Program        → Declaration* EOF ;
+
+Declaration    → StaticDecl 
+               | Statement ;
 
 Statement       → ExpressionStatement
                 | Assignment
@@ -6,6 +9,8 @@ Statement       → ExpressionStatement
                 | Block ;
 
 Block           → "{" Statement* "}" ;
+StaticDecl      → Type Identifier "=" Expression ";" ;
+Assignment      → Identifier "=" Expression ";" ;
 
 Expression      → Equality ;
 Equality        → Comparison (EqualityOperator Comparison)* ;
@@ -14,7 +19,6 @@ Term            → Factor (("+" | "-") Factor)* ;
 Factor          → Primary (("*" | "/") Primary)* ;
 Primary         → Identifier | Literal | "(" Expression ")" ;
 
-Assignment      → Identifier "=" Expression ";" ;
 ExpressionStatement → Expression ";" ;
 If              → "if" "(" Expression ")" Block ("else" Block)? ;
 

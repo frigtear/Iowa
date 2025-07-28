@@ -17,6 +17,8 @@ enum class TokenType{
     GreaterThan,
     LessThan,
 
+    Type,
+
     Semicolon,
     ParenthesisOpen,
     ParenthesisClose,

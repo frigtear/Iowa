@@ -3,32 +3,57 @@
 
 #include <string>
 #include <vector>
-#include "errors.h"  
+#include <variant>
+#include "errors.h"
 #include "token.h"
 
-
+// Base for AST expressions
 class Expression {
 public:
     virtual ~Expression() = default;
 };
 
-class Statement {
+// Declaration is the top‐level AST node (program holds Declarations)
+class Declaration {
+public:
+    virtual ~Declaration() = default;
+};
+
+// Statements are also Declarations, so they can appear in the top‐level
+class Statement : public Declaration {
 public:
     virtual ~Statement() = default;
 };
+
+// Static (typed) variable declaration: e.g. "int x = 5;"
+class StaticDeclaration : public Declaration {
+public:
+    TokenType type;
+    std::string variable_name;
+    std::variant<int, bool, std::string> variable_value;
+
+    StaticDeclaration(TokenType t,
+                      std::string name,
+                      std::variant<int, bool, std::string> val)
+        : type(t), variable_name(std::move(name)), variable_value(std::move(val)) {}
+    
+    ~StaticDeclaration() noexcept = default;
+};
+
+
 
 class Literal : public Expression {
 public:
     std::string value;
     TokenType type;
-    Literal(const std::string& value, TokenType t) : value(value), type(t) {}
+    Literal(const std::string& val, TokenType t) : value(val), type(t) {}
 };
 
-class Identifier : public Expression {
+
+class IdentifierExpr : public Expression {
 public:
     std::string name;
-
-    Identifier(const std::string& name) : name(name) {}
+    IdentifierExpr(const std::string& n) : name(n) {}
 };
 
 
@@ -38,9 +63,8 @@ public:
     TokenType op;
     Expression* right;
 
-    BinaryExpression(Expression* left, TokenType op, Expression* right)
-        : left(left), op(op), right(right) {}
-
+    BinaryExpression(Expression* l, TokenType o, Expression* r)
+        : left(l), op(o), right(r) {}
     ~BinaryExpression() {
         delete left;
         delete right;
@@ -50,11 +74,11 @@ public:
 
 class Assignment : public Statement {
 public:
-    Identifier* variable;
+    IdentifierExpr* variable;
     Expression* value;
 
-    Assignment(Identifier* variable, Expression* value) : variable(variable), value(value) {}
-
+    Assignment(IdentifierExpr* var, Expression* val)
+        : variable(var), value(val) {}
     ~Assignment() {
         delete variable;
         delete value;
@@ -65,9 +89,7 @@ public:
 class ExpressionStatement : public Statement {
 public:
     Expression* expr;
-
-    ExpressionStatement(Expression* expr) : expr(expr) {}
-
+    ExpressionStatement(Expression* e) : expr(e) {}
     ~ExpressionStatement() {
         delete expr;
     }
@@ -77,13 +99,10 @@ public:
 class Block : public Statement {
 public:
     std::vector<Statement*> statements;
-
-    Block(const std::vector<Statement*>& statements)
-        : statements(statements) {}
-
+    Block(std::vector<Statement*> stmts) : statements(std::move(stmts)) {}
     ~Block() {
-        for (auto stmt : statements)
-            delete stmt;
+        for (auto s : statements)
+            delete s;
     }
 };
 
@@ -94,9 +113,8 @@ public:
     Block* thenBlock;
     Block* elseBlock;  
 
-    IfStatement(Expression* condition, Block* thenBlock, Block* elseBlock = nullptr)
-        : condition(condition), thenBlock(thenBlock), elseBlock(elseBlock) {}
-
+    IfStatement(Expression* cond, Block* t, Block* e = nullptr)
+        : condition(cond), thenBlock(t), elseBlock(e) {}
     ~IfStatement() {
         delete condition;
         delete thenBlock;
@@ -106,24 +124,23 @@ public:
 
 
 class PrintStatement : public Statement {
-    public:
-        Expression* expression;
-
-        PrintStatement(Expression* expr) : expression(expr) {}
-
-        ~PrintStatement(){
-            delete expression;
-        }
+public:
+    Expression* expression;
+    PrintStatement(Expression* expr) : expression(expr) {}
+    ~PrintStatement() {
+        delete expression;
+    }
 };
 
-class Program{
-    public:
-        std::vector<Statement*> statements;
-        Program(const std::vector<Statement*>){
-            for (auto stmt : statements){
-                delete stmt;
-            }
-        }
+class Program {
+public:
+    std::vector<Declaration*> declarations;
+
+    Program(std::vector<Declaration*> decls) : declarations(std::move(decls)) {}
+    ~Program() {
+        for (auto d : declarations)
+            delete d;
+    }
 };
 
 #endif 

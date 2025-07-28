@@ -1,0 +1,15 @@
+ {
+   "configurations": [
+     {
+        "name": "Iowa++",
+      "includePath": [
+        "${workspaceFolder}/src/**"
+      ],
+      // Use Apple’s clang++ so it picks up the correct libc++ headers
+      "compilerPath": "/usr/bin/clang++",
+      // Switch to macos-clang-arm64 so it loads Apple’s standard library
+      "intelliSenseMode": "macos-clang-arm64"
+     }
+   ],
+   "version": 4
+ }

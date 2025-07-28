@@ -170,9 +170,11 @@ std::vector<Token> scan_source(char* path){
             case '"':
                 value = scan_string(source_code);
                 std::cout << "read string: " << value << " from source code" << std::endl;
-                scanner.add_token(value, TokenType::String);         
+                scanner.add_token(value, TokenType::String);  
+                break;       
             case ';':
                 scanner.add_token(";", TokenType::Semicolon);
+                break;
             default:
                 if (isNumeric(character)){
                     go_back_one(source_code);
@@ -199,6 +201,15 @@ std::vector<Token> scan_source(char* path){
                     }
                     else if (value == "false"){
                         scanner.add_token(value, TokenType::Boolean);
+                    }
+                    else if (value == "int"){
+                        scanner.add_token(value, TokenType::Type);
+                    }
+                    else if (value == "string"){
+                        scanner.add_token(value, TokenType::Type);
+                    }
+                    else if (value == "bool"){
+                        scanner.add_token(value, TokenType::Type);
                     }
                     else{
                         scanner.add_token(value, TokenType::Identifier);
