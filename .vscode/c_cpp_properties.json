@@ -2,12 +2,12 @@
    "configurations": [
      {
         "name": "Iowa++",
-      "includePath": [
-        "${workspaceFolder}/src/**"
-      ],
-      "compilerPath": "/usr/bin/clang++",
-      "intelliSenseMode": "macos-clang-arm64"
-     }
+        "includePath": [
+            "${workspaceFolder}/src/**"
+        ],
+        "compilerPath": "/usr/bin/clang++",
+        "intelliSenseMode": "macos-clang-arm64"
+        }
    ],
    "version": 4
  }
