@@ -291,6 +291,7 @@ void Parser::visit_print_statement(PrintStatement* stmt) {
     std::cout << "\n";
 }
 
+void Parser::visit_declaration_statement()
 
 void Parser::evaluate_statement(Statement* statement){
     if (!statement){
