@@ -34,6 +34,7 @@ class Parser{
       //  Statement* assignment_statement();
       //  void visit_assignment_statement(AssignmentStatement* statement);
         Statement* declaration_statement();
+        void visit_declaration_statement(StaticDeclaration* declaration)
 
       
         Statement* declaration();

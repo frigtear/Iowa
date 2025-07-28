@@ -302,6 +302,9 @@ void Parser::evaluate_statement(Statement* statement){
     else if (auto expression_statement = dynamic_cast<ExpressionStatement*>(statement)){
         visit_expression_statement(expression_statement);
     }
+    else if (auto declaration_statement = dynamic_cast<StaticDeclaration*>(statement)){
+        visit_declaration_statement(declaration_statement);
+    }
 }
 
 Statement* Parser::declaration_statement(){
