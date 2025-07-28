@@ -171,7 +171,8 @@ std::vector<Token> scan_source(char* path){
                 value = scan_string(source_code);
                 std::cout << "read string: " << value << " from source code" << std::endl;
                 scanner.add_token(value, TokenType::String);         
-
+            case ';':
+                scanner.add_token(";", TokenType::Semicolon);
             default:
                 if (isNumeric(character)){
                     go_back_one(source_code);
@@ -210,5 +211,6 @@ std::vector<Token> scan_source(char* path){
                 errors.push_back(error);
         }
     }
+    scanner.add_token("EOF", TokenType::Eof);
     return scanner.get_tokens();
 }

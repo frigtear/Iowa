@@ -14,12 +14,24 @@ Token Parser::previous() {
     return Token("", TokenType::Eof);
 }
 
+Token Parser::consume(TokenType expected, const std::string& errorMessage) {
+    if (peek().get_type() == expected) {
+        return next();
+    }
+    throw std::runtime_error(errorMessage + 
+        " Got “" + Token::get_type_string(peek().get_type()) + "”.");
+}
+
 Token Parser::next() {
     if (current < number_of_tokens - 1){
         current++;
         return peek();
     }
     return Token("", TokenType::Eof);
+}
+
+bool Parser::is_at_end(){
+    return (peek().get_type() == TokenType::Eof);
 }
 
 Parser::Parser(std::vector<Token> t) : tokens(t), current(0)
@@ -35,6 +47,27 @@ bool Parser::match(std::vector<TokenType> types){
         }
     }
     return false;
+}
+
+Statement* Parser::statement(){
+    if (match({TokenType::Say})){
+        return print_statement();
+    }
+    else{
+        return expression_statement();
+    }
+}
+
+Statement* Parser::expression_statement(){
+    Expression* value = expression();
+    consume(TokenType::Semicolon, "Expect ';' after value.");
+    return new ExpressionStatement(value);
+}
+
+Statement* Parser::print_statement(){
+    Expression* value = expression();
+    consume(TokenType::Semicolon, "Expect ';' after value.");
+    return new PrintStatement(value);
 }
 
 Expression* Parser::expression() {
@@ -125,10 +158,6 @@ Expression* Parser::primary() {
     throw std::runtime_error("Expressions must be wrapped in parenthesis");
 }
 
-Expression* Parser::parse(){
-    return expression();
-}
-
 
 void Parser::print_ast(Expression* expr){
     if (auto binary = dynamic_cast<BinaryExpression*>(expr)) {
@@ -171,7 +200,7 @@ Parser::evaluation Parser::evaluate_literal(Literal* literal){
             return false;
         }
         else{
-            std::runtime_error("Unsupported boolean type"); // Should be impossible but just in case
+            throw std::runtime_error("Unsupported boolean type"); // Should be impossible but just in case
         }
     }
     return literal_value;
@@ -232,5 +261,47 @@ Parser::evaluation Parser::evaluate_expression(Expression* expr){
     }
 }
 
+std::vector<Statement*> Parser::parse(){
+    std::vector<Statement*> statements;  
+    while (!is_at_end()){
+        Statement* stmnt = statement();
+        statements.push_back(stmnt);
+    }
+    return statements;
+}
 
+
+void Parser::visit_expression_statement(ExpressionStatement* statement){
+    evaluate_expression(statement->expr);
+}
+
+
+void Parser::visit_print_statement(PrintStatement* stmt) {
+    evaluation value = evaluate_expression(stmt->expression);
+
+    std::visit([&](auto&& v){
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, bool>) {
+            std::cout << std::boolalpha << v;
+        }
+        else {
+            std::cout << v;
+        }
+    }, value);
+
+    std::cout << "\n";
+}
+
+
+void Parser::evaluate_statement(Statement* statement){
+    if (!statement){
+        throw std::runtime_error("Null statement encountered during evaluation");
+    }
+    else if (auto print_statement = dynamic_cast<PrintStatement*>(statement)){
+        visit_print_statement(print_statement);
+    }
+    else if (auto expression_statement = dynamic_cast<ExpressionStatement*>(statement)){
+        visit_expression_statement(expression_statement);
+    }
+}
 

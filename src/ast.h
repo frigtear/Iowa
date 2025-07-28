@@ -105,6 +105,17 @@ public:
 };
 
 
+class PrintStatement : public Statement {
+    public:
+        Expression* expression;
+
+        PrintStatement(Expression* expr) : expression(expr) {}
+
+        ~PrintStatement(){
+            delete expression;
+        }
+};
+
 class Program{
     public:
         std::vector<Statement*> statements;

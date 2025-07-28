@@ -1,1 +1,1 @@
-(false && (false || true) || (false && false))
+say (false && (false || true) || (false && false));

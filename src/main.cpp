@@ -12,26 +12,18 @@ int main(int argc, char* argv[]) {
 
     char* path = argv[1];
     std::vector<Token> tokens = scan_source(path);
-    
+
     for (const Token& t : tokens) {
         std::cout << Token::get_type_string(t.get_type()) << ": " << t.get_value() << "\n";
     }
 
     Parser parser(tokens);
-    Expression* expr = parser.parse();
+    std::vector<Statement*> statements = parser.parse();
 
-    Parser::print_ast(expr);
-
-    try {
-        Parser::evaluation result = parser.evaluate_expression(expr);
-
-        std::visit([](const auto& value) {
-            std::cout << "Result: " << value << std::endl;
-        }, result);
-    } catch (const std::exception& e) {
-        std::cerr << "Runtime error: " << e.what() << std::endl;
-        return 1;
-    }
+    for(auto& stmnt : statements){
+        std::cout << "Evaluating statement";
+        parser.evaluate_statement(stmnt);
+    };
 
     return 0;
 }
