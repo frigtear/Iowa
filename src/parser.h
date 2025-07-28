@@ -33,7 +33,10 @@ class Parser{
         void visit_expression_statement(ExpressionStatement* statement);
       //  Statement* assignment_statement();
       //  void visit_assignment_statement(AssignmentStatement* statement);
+        Statement* declaration_statement();
 
+      
+        Statement* declaration();
         Statement* statement();
         Expression* expression();
         Expression* logic_or();

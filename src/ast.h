@@ -7,39 +7,34 @@
 #include "errors.h"
 #include "token.h"
 
-// Base for AST expressions
 class Expression {
 public:
     virtual ~Expression() = default;
 };
 
-// Declaration is the top‐level AST node (program holds Declarations)
 class Declaration {
 public:
     virtual ~Declaration() = default;
 };
 
-// Statements are also Declarations, so they can appear in the top‐level
 class Statement : public Declaration {
 public:
     virtual ~Statement() = default;
 };
 
-// Static (typed) variable declaration: e.g. "int x = 5;"
-class StaticDeclaration : public Declaration {
+class StaticDeclaration : public Statement {
 public:
-    TokenType type;
+    std::string variable_type;
     std::string variable_name;
-    std::variant<int, bool, std::string> variable_value;
+    Expression* val;
 
-    StaticDeclaration(TokenType t,
+    StaticDeclaration(std::string t,
                       std::string name,
-                      std::variant<int, bool, std::string> val)
-        : type(t), variable_name(std::move(name)), variable_value(std::move(val)) {}
+                      Expression* val)
+        : variable_type(t), variable_name(std::move(name)), val(std::move(val)) {}
     
     ~StaticDeclaration() noexcept = default;
 };
-
 
 
 class Literal : public Expression {
@@ -71,6 +66,9 @@ public:
     }
 };
 
+class Identifier : public Expression{
+
+};
 
 class Assignment : public Statement {
 public:

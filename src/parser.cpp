@@ -158,7 +158,7 @@ Expression* Parser::primary() {
     throw std::runtime_error("Expressions must be wrapped in parenthesis");
 }
 
-
+/*
 void Parser::print_ast(Expression* expr){
     if (auto binary = dynamic_cast<BinaryExpression*>(expr)) {
         std::cout << "(";
@@ -168,14 +168,13 @@ void Parser::print_ast(Expression* expr){
         std::cout << ")";
     }
     else if (auto identifier = dynamic_cast<Identifier*>(expr)){
-        std::cout << identifier->name;
+        std::cout << identifier.name;
     }
     else if (auto literal = dynamic_cast<Literal*>(expr)){
         std::cout << literal->value;
     }
 }
-
-
+*/
 
 Parser::evaluation Parser::evaluate_literal(Literal* literal){
 
@@ -305,3 +304,21 @@ void Parser::evaluate_statement(Statement* statement){
     }
 }
 
+Statement* Parser::declaration_statement(){
+    std::string variable_type = previous().get_value();
+    Token variable_name = consume(TokenType::Identifier, "Expect varaible name: ");
+    Expression* variable_value = nullptr;
+    if (match({TokenType::Equals})){
+        Expression* variable_value = expression();
+    }
+    consume(TokenType::Semicolon, "Expect ';' after variable declaration.");
+    return new StaticDeclaration(variable_type, variable_name.get_value(), variable_value);
+}
+
+Statement* Parser::declaration(){
+    if (match({TokenType::Type})){
+        return declaration_statement();
+    }
+    
+    return statement();
+}
