@@ -291,7 +291,7 @@ void Parser::visit_print_statement(PrintStatement* stmt) {
     std::cout << "\n";
 }
 
-void Parser::visit_declaration_statement()
+//void Parser::visit_declaration_statement();
 
 void Parser::evaluate_statement(Statement* statement){
     if (!statement){
@@ -319,10 +319,3 @@ Statement* Parser::declaration_statement(){
     return new StaticDeclaration(variable_type, variable_name.get_value(), variable_value);
 }
 
-Statement* Parser::declaration(){
-    if (match({TokenType::Type})){
-        return declaration_statement();
-    }
-    
-    return statement();
-}
