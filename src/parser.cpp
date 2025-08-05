@@ -291,7 +291,22 @@ void Parser::visit_print_statement(PrintStatement* stmt) {
     std::cout << "\n";
 }
 
-//void Parser::visit_declaration_statement();
+void Parser::visit_declaration_statement(StaticDeclaration* declaration){
+    Expression* value_expr = declaration->val;
+    evaluation value = evaluate_expression(value_expr);
+
+    std::cout << "assigning ";
+    std::visit([](auto&& v){
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, bool>) {
+            std::cout << std::boolalpha << v;
+        }
+        else {
+            std::cout << v;
+        }
+    }, value);
+    std::cout << " to " << declaration->variable_name << std::endl;
+}
 
 void Parser::evaluate_statement(Statement* statement){
     if (!statement){
