@@ -3,7 +3,7 @@
 #include <vector>
 #include "errors.h"
 
-Token Parser::peek() {
+Token Parser::peek() const{
     return tokens.at(current);
 }
 
@@ -34,6 +34,10 @@ bool Parser::is_at_end(){
     return (peek().get_type() == TokenType::Eof);
 }
 
+bool Parser::check(TokenType type) const{
+    return (peek().get_type() == type);
+}
+
 Parser::Parser(std::vector<Token> t) : tokens(t), current(0)
 {
     number_of_tokens = t.size();
@@ -49,13 +53,51 @@ bool Parser::match(std::vector<TokenType> types){
     return false;
 }
 
+Declaration* Parser::program(){
+    std::vector<Declaration*> declarations;
+    while (!is_at_end()){
+        
+        declarations.push_back((declaration()));
+    }
+    return new Program(std::move(declarations));
+}
+
+Declaration* Parser::declaration(){
+    if (match({TokenType::Set})) {
+        return declaration_statement();
+    }
+    else{
+        return statement();
+    }
+}
+
+Statement* Parser::declaration_statement() {
+    Token var_name_token = consume(TokenType::Identifier, "Expected variable name after 'set'");
+    consume(TokenType::Equals, "Expected '=' after variable name.");
+    Expression* initializer = expression();
+    consume(TokenType::Semicolon, "Expected ';' after variable declaration.");
+    return new DeclarationStatement(var_name_token.get_value(), initializer);
+}
+
 Statement* Parser::statement(){
     if (match({TokenType::Say})){
         return print_statement();
     }
+    else if (match({TokenType::BracketOpen})){
+        return block();
+    }
     else{
         return expression_statement();
     }
+}
+
+Statement* Parser::block(){
+    std::vector<Statement*> statements = {};
+    while (!check(TokenType::BracketClose) && !is_at_end()){
+        statements.push_back(statement());
+    }
+    consume(TokenType::BracketClose, "Expect '}' after block.");
+    return new Block(std::move(statements));
 }
 
 Statement* Parser::expression_statement(){
@@ -63,6 +105,7 @@ Statement* Parser::expression_statement(){
     consume(TokenType::Semicolon, "Expect ';' after value.");
     return new ExpressionStatement(value);
 }
+
 
 Statement* Parser::print_statement(){
     Expression* value = expression();
@@ -137,6 +180,7 @@ Expression* Parser::factor() {
     }
     return expr;
 }
+
 
 Expression* Parser::primary() {
     if (match({TokenType::Number})) {

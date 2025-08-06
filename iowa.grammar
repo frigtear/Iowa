@@ -9,7 +9,7 @@ Statement       → ExpressionStatement
                 | Block ;
 
 Block           → "{" Statement* "}" ;
-StaticDecl      → Type Identifier "=" Expression ";" ;
+StaticDecl      → "set" Identifier "=" Expression ";" ;
 Assignment      → Identifier "=" Expression ";" ;
 
 Expression      → Equality ;

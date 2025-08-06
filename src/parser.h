@@ -14,7 +14,7 @@ class Parser{
 
         Parser(std::vector<Token> t);
 
-        Token peek();
+        Token peek() const;
         Token previous();
         Token next();
         Token consume(TokenType expected, const std::string& errorMessage);
@@ -22,15 +22,18 @@ class Parser{
         bool is_at_end();
         bool match(std::vector<std::string> types);
         bool match(std::vector<TokenType> types);    
+        bool check(TokenType type) const;
 
+        Declaration* program();
         Statement* print_statement();
         void visit_print_statement(PrintStatement* statement );
      //   Statement* if_statement();
         Statement* expression_statement();
       //  Statement* assignment_statement();
         Statement* declaration_statement();
+        Statement* block();
 
-        Statement* declaration();
+        Declaration* declaration();
         Statement* statement();
         Expression* expression();
         Expression* logic_or();
@@ -47,9 +50,6 @@ class Parser{
         Expression* string_literal(); 
         Expression* equality_operator();
         Expression* comparison_operator();
-
-
-        std::vector<Statement*> parse();
         
     private: 
         std::vector<Token> tokens;

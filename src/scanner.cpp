@@ -196,20 +196,14 @@ std::vector<Token> scan_source(char* path){
                     else if (value == "say"){
                         scanner.add_token(value, TokenType::Say);
                     }
+                    else if (value == "set"){
+                        scanner.add_token(value, TokenType::Set);
+                    }
                     else if (value == "true"){
                         scanner.add_token(value, TokenType::Boolean);
                     }
                     else if (value == "false"){
                         scanner.add_token(value, TokenType::Boolean);
-                    }
-                    else if (value == "int"){
-                        scanner.add_token(value, TokenType::Type);
-                    }
-                    else if (value == "string"){
-                        scanner.add_token(value, TokenType::Type);
-                    }
-                    else if (value == "bool"){
-                        scanner.add_token(value, TokenType::Type);
                     }
                     else{
                         scanner.add_token(value, TokenType::Identifier);

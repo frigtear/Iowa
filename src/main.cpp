@@ -1,6 +1,7 @@
 #include "scanner.h"
 #include "parser.h"
 #include "token.h"
+#include "evaluator.h"
 #include <iostream>
 #include <variant>
 
@@ -18,12 +19,10 @@ int main(int argc, char* argv[]) {
     }
 
     Parser parser(tokens);
-    std::vector<Statement*> statements = parser.parse();
+    Evaluator evaluator;
 
-    for(auto& stmnt : statements){
-        std::cout << "Evaluating statement";
-        parser.evaluate_statement(stmnt);
-    };
+    Declaration* root = parser.program();
+    evaluator.evaluate_declaration(root);
 
     return 0;
 }

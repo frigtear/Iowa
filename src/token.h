@@ -28,6 +28,7 @@ enum class TokenType{
     If,
     Else,
     Say,
+    Set,
 
     String,
     Number,

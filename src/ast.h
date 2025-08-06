@@ -17,23 +17,22 @@ public:
     virtual ~Declaration() = default;
 };
 
-class Statement : public Declaration {
+class Statement : public Declaration{
 public:
     virtual ~Statement() = default;
 };
 
-class StaticDeclaration : public Statement {
+class DeclarationStatement : public Statement {
 public:
-    std::string variable_type;
     std::string variable_name;
     Expression* val;
 
-    StaticDeclaration(std::string t,
-                      std::string name,
-                      Expression* val)
-        : variable_type(t), variable_name(std::move(name)), val(std::move(val)) {}
+    DeclarationStatement(
+                    std::string name,
+                    Expression* val)
+        : variable_name(std::move(name)), val(std::move(val)) {}
     
-    ~StaticDeclaration() noexcept = default;
+    ~DeclarationStatement() noexcept = default;
 };
 
 
@@ -130,11 +129,11 @@ public:
     }
 };
 
-class Program {
+class Program : public Declaration{
 public:
     std::vector<Declaration*> declarations;
 
-    Program(std::vector<Declaration*> decls) : declarations(std::move(decls)) {}
+    Program(std::vector<Declaration*> decls) : declarations(decls) {}
     ~Program() {
         for (auto d : declarations)
             delete d;

@@ -1,6 +1,6 @@
 #include "evaluator.h"
 
-Evaluator::Evaluation Evaluator::evaluate_literal(Literal* literal) {
+Evaluator::evaluation Evaluator::evaluate_literal(Literal* literal) {
     if (!literal) {
         throw std::runtime_error("Null literal encountered");
     }
@@ -26,16 +26,16 @@ Evaluator::Evaluation Evaluator::evaluate_literal(Literal* literal) {
     return literal_value;
 }
 
-Evaluator::Evaluation Evaluator::evaluate_identifier(Identifier* identifier) {
+Evaluator::evaluation Evaluator::evaluate_identifier(Identifier* identifier) {
     throw std::runtime_error("Identifiers are not implemented yet"); 
 }
 
-Evaluator::Evaluation Evaluator::evaluate_binary(BinaryExpression* binary) {
-    Evaluation left = evaluate_expression(binary->left);
-    Evaluation right = evaluate_expression(binary->right);
+Evaluator::evaluation Evaluator::evaluate_binary(BinaryExpression* binary) {
+    evaluation left = evaluate_expression(binary->left);
+    evaluation right = evaluate_expression(binary->right);
     TokenType op = binary->op;
 
-    return std::visit([&op](auto&& l, auto&& r) -> Evaluator::Evaluation {
+    return std::visit([&op](auto&& l, auto&& r) -> Evaluator::evaluation {
         using L = std::decay_t<decltype(l)>;
         using R = std::decay_t<decltype(r)>;
 
@@ -63,7 +63,7 @@ Evaluator::Evaluation Evaluator::evaluate_binary(BinaryExpression* binary) {
     }, left, right);
 }
 
-Evaluator::Evaluation Evaluator::evaluate_expression(Expression* expr) {
+Evaluator::evaluation Evaluator::evaluate_expression(Expression* expr) {
     if (!expr) {
         throw std::runtime_error("Null expression encountered during evaluation");
     }
@@ -85,6 +85,23 @@ void Evaluator::evaluate(const std::vector<Statement*>& statements) {
     }
 }
 
+
+void Evaluator::evaluate_declaration(Declaration* declaration){
+    if (!declaration){
+        throw std::runtime_error("null declaration encountered during evaluation");
+    }
+    
+    if (auto decl = dynamic_cast<DeclarationStatement*>(declaration)) {
+        evaluate_declaration(decl);
+    }
+    else if (auto stmnt = dynamic_cast<Statement*>(declaration)){
+        evaluate_statement(stmnt);
+    }
+    else{
+        throw std::runtime_error("unknown declaration type");
+    }
+}
+
 void Evaluator::evaluate_statement(Statement* statement) {
     if (!statement) {
         throw std::runtime_error("Null statement encountered during evaluation");
@@ -94,7 +111,7 @@ void Evaluator::evaluate_statement(Statement* statement) {
         visit_print_statement(print_stmt);
     } else if (auto expr_stmt = dynamic_cast<ExpressionStatement*>(statement)) {
         visit_expression_statement(expr_stmt);
-    } else if (auto decl_stmt = dynamic_cast<StaticDeclaration*>(statement)) {
+    } else if (auto decl_stmt = dynamic_cast<DeclarationStatement*>(statement)) {
         visit_declaration_statement(decl_stmt);
     } else {
         throw std::runtime_error("Unknown statement type");
@@ -106,7 +123,7 @@ void Evaluator::visit_expression_statement(ExpressionStatement* statement) {
 }
 
 void Evaluator::visit_print_statement(PrintStatement* stmt) {
-    Evaluation value = evaluate_expression(stmt->expression);
+    evaluation value = evaluate_expression(stmt->expression);
 
     std::visit([](auto&& v) {
         using T = std::decay_t<decltype(v)>;
@@ -120,17 +137,19 @@ void Evaluator::visit_print_statement(PrintStatement* stmt) {
     std::cout << "\n";
 }
 
-void Evaluator::visit_declaration_statement(StaticDeclaration* declaration) {
-    Evaluation value = evaluate_expression(declaration->val);
 
-    std::cout << "assigning ";
-    std::visit([](auto&& v) {
-        using T = std::decay_t<decltype(v)>;
-        if constexpr (std::is_same_v<T, bool>) {
-            std::cout << std::boolalpha << v;
-        } else {
-            std::cout << v;
-        }
-    }, value);
-    std::cout << " to " << declaration->variable_name << std::endl;
+void Evaluator::visit_declaration_statement(DeclarationStatement* declaration) {
+    evaluation value = evaluate_expression(declaration->val);
+    
+    current_environment->add_variable(declaration->variable_name, std::move(value));
+}
+
+
+void Evaluator::visit_block_statement(Block* block, Environment* environment){
+    Environment* prev = current_environment;
+    current_environment = environment;
+    for (auto& statement : block->statements){
+        evaluate_statement(statement);
+    }
+    current_environment = prev;
 }

@@ -1,5 +1,5 @@
 CXX = clang++
-CXXFLAGS = -std=c++23 -Wall
+CXXFLAGS = -std=c++2b -Wall
 
 TARGET = bin/Iowa
 
