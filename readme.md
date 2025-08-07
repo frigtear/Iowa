@@ -3,7 +3,7 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#)
 
-Iowa is a simple, high‑level interpreted language designed for readability. Inspired by modern scripting languages, Iowa offers a clean syntax, static typing
+Iowa is a simple, high‑level interpreted language designed for readability. Inspired by modern scripting languages, Iowa offers a clean syntax, dynami typing
 
 ---
 
