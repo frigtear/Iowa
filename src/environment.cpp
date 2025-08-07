@@ -1,5 +1,9 @@
 #include "environment.h"
 
+Environment::Environment() : parent_environment(nullptr) {};
+
+Environment::Environment(Environment* env) : parent_environment(env) {};
+
 Environment::dynamic_type Environment::get_variable_value(const std::string& name) const {
     if (variables.contains(name)) {
         return variables.at(name); 
@@ -21,6 +25,7 @@ void Environment::remove_variable(const std::string& name){
 }
 
 bool Environment::has_reference(const std::string& name) const{
-     return variables.contains(name);
+    
+    return variables.contains(name);
 }
 

@@ -22,17 +22,17 @@ public:
     virtual ~Statement() = default;
 };
 
-class DeclarationStatement : public Statement {
+class DynamicDeclaration : public Declaration {
 public:
     std::string variable_name;
-    Expression* val;
+    Expression* value;
 
-    DeclarationStatement(
+    DynamicDeclaration(
                     std::string name,
                     Expression* val)
-        : variable_name(std::move(name)), val(std::move(val)) {}
+        : variable_name(std::move(name)), value(val) {}
     
-    ~DeclarationStatement() noexcept = default;
+    ~DynamicDeclaration() noexcept = default;
 };
 
 
@@ -66,7 +66,9 @@ public:
 };
 
 class Identifier : public Expression{
-
+public:
+    std::string identifier_name;
+    Identifier(const std::string& name) : identifier_name(name) {};
 };
 
 class Assignment : public Statement {
@@ -95,10 +97,10 @@ public:
 
 class Block : public Statement {
 public:
-    std::vector<Statement*> statements;
-    Block(std::vector<Statement*> stmts) : statements(std::move(stmts)) {}
+    std::vector<Declaration*> declarations;
+    Block(std::vector<Declaration*> stmts) : declarations(std::move(stmts)) {}
     ~Block() {
-        for (auto s : statements)
+        for (auto s : declarations)
             delete s;
     }
 };

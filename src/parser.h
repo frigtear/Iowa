@@ -30,11 +30,11 @@ class Parser{
      //   Statement* if_statement();
         Statement* expression_statement();
       //  Statement* assignment_statement();
-        Statement* declaration_statement();
+        Declaration* dynamic_declaration();
         Statement* block();
 
         Declaration* declaration();
-        Statement* statement();
+        Declaration* statement();
         Expression* expression();
         Expression* logic_or();
         Expression* logic_and();

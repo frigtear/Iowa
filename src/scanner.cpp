@@ -169,7 +169,7 @@ std::vector<Token> scan_source(char* path){
 
             case '"':
                 value = scan_string(source_code);
-                std::cout << "read string: " << value << " from source code" << std::endl;
+               // std::cout << "read string: " << value << " from source code" << std::endl;
                 scanner.add_token(value, TokenType::String);  
                 break;       
             case ';':

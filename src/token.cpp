@@ -1,7 +1,6 @@
 #include "token.h"
-#include <stdio.h>
 
-Token::Token(std::string val, TokenType t){
+Token::Token(std::string val, TokenType t) {
     value = val;
     type = t;
 }
@@ -14,7 +13,7 @@ TokenType Token::get_type() const {
     return type;
 }
 
-std::string Token::get_type_string(TokenType type){
+std::string Token::get_type_string(TokenType type) {
     switch (type) {
         case TokenType::Plus: return "Plus";
         case TokenType::Minus: return "Minus";
@@ -35,9 +34,10 @@ std::string Token::get_type_string(TokenType type){
         case TokenType::If: return "If";
         case TokenType::Else: return "Else";
         case TokenType::Say: return "Say";
+        case TokenType::Set: return "Set";
         case TokenType::String: return "String";
         case TokenType::Number: return "Number";
-        case TokenType::Boolean: return "Bool";
+        case TokenType::Boolean: return "Boolean"; 
         case TokenType::Identifier: return "Identifier";
         case TokenType::Eof: return "EOF";
         default: return "Unknown";

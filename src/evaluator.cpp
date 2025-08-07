@@ -1,5 +1,14 @@
 #include "evaluator.h"
 
+Evaluator::Evaluator(){
+    Environment* environment = new Environment;
+    current_environment = environment;
+}
+
+Evaluator::~Evaluator() {
+    delete current_environment;
+}
+
 Evaluator::evaluation Evaluator::evaluate_literal(Literal* literal) {
     if (!literal) {
         throw std::runtime_error("Null literal encountered");
@@ -27,7 +36,7 @@ Evaluator::evaluation Evaluator::evaluate_literal(Literal* literal) {
 }
 
 Evaluator::evaluation Evaluator::evaluate_identifier(Identifier* identifier) {
-    throw std::runtime_error("Identifiers are not implemented yet"); 
+    return current_environment->get_variable_value(identifier->identifier_name); 
 }
 
 Evaluator::evaluation Evaluator::evaluate_binary(BinaryExpression* binary) {
@@ -85,14 +94,13 @@ void Evaluator::evaluate(const std::vector<Statement*>& statements) {
     }
 }
 
-
 void Evaluator::evaluate_declaration(Declaration* declaration){
     if (!declaration){
         throw std::runtime_error("null declaration encountered during evaluation");
     }
     
-    if (auto decl = dynamic_cast<DeclarationStatement*>(declaration)) {
-        evaluate_declaration(decl);
+    if (auto decl = dynamic_cast<DynamicDeclaration*>(declaration)) {
+        visit_dynamic_declaration(decl);
     }
     else if (auto stmnt = dynamic_cast<Statement*>(declaration)){
         evaluate_statement(stmnt);
@@ -102,17 +110,17 @@ void Evaluator::evaluate_declaration(Declaration* declaration){
     }
 }
 
-void Evaluator::evaluate_statement(Statement* statement) {
-    if (!statement) {
+void Evaluator::evaluate_statement(Declaration* declaration) {
+    if (!declaration) {
         throw std::runtime_error("Null statement encountered during evaluation");
     }
 
-    if (auto print_stmt = dynamic_cast<PrintStatement*>(statement)) {
+    if (auto print_stmt = dynamic_cast<PrintStatement*>(declaration)) {
         visit_print_statement(print_stmt);
-    } else if (auto expr_stmt = dynamic_cast<ExpressionStatement*>(statement)) {
+    } else if (auto expr_stmt = dynamic_cast<ExpressionStatement*>(declaration)) {
         visit_expression_statement(expr_stmt);
-    } else if (auto decl_stmt = dynamic_cast<DeclarationStatement*>(statement)) {
-        visit_declaration_statement(decl_stmt);
+    } else if (auto block = dynamic_cast<Block*>(declaration)){
+        visit_block_statement(block);
     } else {
         throw std::runtime_error("Unknown statement type");
     }
@@ -138,18 +146,26 @@ void Evaluator::visit_print_statement(PrintStatement* stmt) {
 }
 
 
-void Evaluator::visit_declaration_statement(DeclarationStatement* declaration) {
-    evaluation value = evaluate_expression(declaration->val);
-    
-    current_environment->add_variable(declaration->variable_name, std::move(value));
+void Evaluator::visit_dynamic_declaration(DynamicDeclaration* declaration) {
+    evaluation value = evaluate_expression(declaration->value);
+    //std::cout << "Adding value to variable " + declaration->variable_name << std::endl;
+    current_environment->add_variable(declaration->variable_name, value);
 }
 
 
-void Evaluator::visit_block_statement(Block* block, Environment* environment){
+void Evaluator::visit_block_statement(Block* block){
     Environment* prev = current_environment;
-    current_environment = environment;
-    for (auto& statement : block->statements){
-        evaluate_statement(statement);
+    current_environment = new Environment(prev);
+    for (auto& declaration : block->declarations){
+        evaluate_declaration(declaration);
     }
     current_environment = prev;
+}
+
+
+void Evaluator::execute_program(Program* program){
+    std::vector<Declaration*> program_declarations = program->declarations;
+    for (auto& declaration : program_declarations){
+        evaluate_declaration(declaration);
+    }
 }

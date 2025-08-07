@@ -6,9 +6,8 @@ class Environment{
     public:
         using dynamic_type = std::variant<int, double, std::string, bool>;
 
-
-        Environment() = default;
-        Environment(Environment* parent) : parent_environment(parent) {};
+        Environment();
+        Environment(Environment* parent);
 
         dynamic_type get_variable_value(const std::string& variable_name) const;
         void add_variable(std::string name, dynamic_type value);
@@ -17,8 +16,6 @@ class Environment{
            
     private:
         std::unordered_map<std::string, dynamic_type> variables;
-        
-        Environment* parent_environment = nullptr;
+        Environment* parent_environment;
 
-    
 };

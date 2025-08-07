@@ -3,8 +3,9 @@
 
 #include <iostream>
 
-enum class TokenType{
-    // Operators,
+enum class TokenType {
+
+    // Operators
     Plus,
     Minus,
     Multiply,
@@ -17,38 +18,38 @@ enum class TokenType{
     GreaterThan,
     LessThan,
 
-    Type,
-
-    Semicolon,
-    ParenthesisOpen,
-    ParenthesisClose,
-    BracketOpen,
-    BracketClose,
-    
+    // Keywords
     If,
     Else,
     Say,
     Set,
 
+    // Symbols
+    Semicolon,
+    ParenthesisOpen,
+    ParenthesisClose,
+    BracketOpen,
+    BracketClose,
+
+    // Literals
     String,
     Number,
     Boolean,
 
     Identifier,
-
-    Eof,
+    Eof
 };
 
-class Token{
-    public:
-        Token(std::string val, TokenType type);
-        std::string get_value() const;
-        TokenType get_type() const;
-        static std::string get_type_string(TokenType type);
+class Token {
+public:
+    Token(std::string val, TokenType type);
+    std::string get_value() const;
+    TokenType get_type() const;
+    static std::string get_type_string(TokenType type);
 
-    private:
-        std::string value;
-        TokenType type; 
+private:
+    std::string value;
+    TokenType type;
 };
 
 #endif 

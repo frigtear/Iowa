@@ -16,7 +16,9 @@ Token Parser::previous() {
 
 Token Parser::consume(TokenType expected, const std::string& errorMessage) {
     if (peek().get_type() == expected) {
-        return next();
+        Token temp = peek();
+        next();
+        return temp;
     }
     throw std::runtime_error(errorMessage + 
         " Got “" + Token::get_type_string(peek().get_type()) + "”.");
@@ -56,7 +58,6 @@ bool Parser::match(std::vector<TokenType> types){
 Declaration* Parser::program(){
     std::vector<Declaration*> declarations;
     while (!is_at_end()){
-        
         declarations.push_back((declaration()));
     }
     return new Program(std::move(declarations));
@@ -64,22 +65,24 @@ Declaration* Parser::program(){
 
 Declaration* Parser::declaration(){
     if (match({TokenType::Set})) {
-        return declaration_statement();
+        return dynamic_declaration();
     }
     else{
         return statement();
     }
 }
 
-Statement* Parser::declaration_statement() {
-    Token var_name_token = consume(TokenType::Identifier, "Expected variable name after 'set'");
+Declaration* Parser::dynamic_declaration() {
+
+    Token nameToken = consume(TokenType::Identifier, "Expected variable name after 'set'.");
+    std::string variable_name = nameToken.get_value();
     consume(TokenType::Equals, "Expected '=' after variable name.");
-    Expression* initializer = expression();
-    consume(TokenType::Semicolon, "Expected ';' after variable declaration.");
-    return new DeclarationStatement(var_name_token.get_value(), initializer);
+    Expression* variable_value = expression();
+    consume(TokenType::Semicolon,"Expected ';' after variable declaration.");
+    return new DynamicDeclaration(variable_name, variable_value);
 }
 
-Statement* Parser::statement(){
+Declaration* Parser::statement(){
     if (match({TokenType::Say})){
         return print_statement();
     }
@@ -92,9 +95,10 @@ Statement* Parser::statement(){
 }
 
 Statement* Parser::block(){
-    std::vector<Statement*> statements = {};
-    while (!check(TokenType::BracketClose) && !is_at_end()){
-        statements.push_back(statement());
+    std::cout << "parsing block" << std::endl;
+    std::vector<Declaration*> statements = {};
+    while (!(peek().get_type() == TokenType::BracketClose) && !is_at_end()){
+        statements.push_back(declaration());
     }
     consume(TokenType::BracketClose, "Expect '}' after block.");
     return new Block(std::move(statements));
@@ -191,6 +195,9 @@ Expression* Parser::primary() {
     }
     if (match ({TokenType::String })){
         return new Literal(previous().get_value(), TokenType::String);
+    }
+    if (match ({ TokenType::Identifier })){
+        return new Identifier(previous().get_value());
     }
     if (match({TokenType::ParenthesisOpen})) {
         Expression* expr = expression();
