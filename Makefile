@@ -1,5 +1,5 @@
 CXX = clang++
-CXXFLAGS = -std=c++17 -Wall
+CXXFLAGS = -std=c++2b -Wall
 
 TARGET = bin/Iowa
 
@@ -19,6 +19,6 @@ bin/%.o: src/%.cpp
 
 run:
 	make
-	./bin/Iowa tests/test_boolean_expression.ia
-	./bin/Iowa tests/test_integer_expression.ia
+	./bin/Iowa tests/test.ia
+
 	

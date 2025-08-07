@@ -3,7 +3,7 @@
 #include <vector>
 #include "errors.h"
 
-Token Parser::peek() {
+Token Parser::peek() const{
     return tokens.at(current);
 }
 
@@ -16,7 +16,9 @@ Token Parser::previous() {
 
 Token Parser::consume(TokenType expected, const std::string& errorMessage) {
     if (peek().get_type() == expected) {
-        return next();
+        Token temp = peek();
+        next();
+        return temp;
     }
     throw std::runtime_error(errorMessage + 
         " Got “" + Token::get_type_string(peek().get_type()) + "”.");
@@ -34,6 +36,10 @@ bool Parser::is_at_end(){
     return (peek().get_type() == TokenType::Eof);
 }
 
+bool Parser::check(TokenType type) const{
+    return (peek().get_type() == type);
+}
+
 Parser::Parser(std::vector<Token> t) : tokens(t), current(0)
 {
     number_of_tokens = t.size();
@@ -49,13 +55,53 @@ bool Parser::match(std::vector<TokenType> types){
     return false;
 }
 
-Statement* Parser::statement(){
+Declaration* Parser::program(){
+    std::vector<Declaration*> declarations;
+    while (!is_at_end()){
+        declarations.push_back((declaration()));
+    }
+    return new Program(std::move(declarations));
+}
+
+Declaration* Parser::declaration(){
+    if (match({TokenType::Set})) {
+        return dynamic_declaration();
+    }
+    else{
+        return statement();
+    }
+}
+
+Declaration* Parser::dynamic_declaration() {
+
+    Token nameToken = consume(TokenType::Identifier, "Expected variable name after 'set'.");
+    std::string variable_name = nameToken.get_value();
+    consume(TokenType::Equals, "Expected '=' after variable name.");
+    Expression* variable_value = expression();
+    consume(TokenType::Semicolon,"Expected ';' after variable declaration.");
+    return new DynamicDeclaration(variable_name, variable_value);
+}
+
+Declaration* Parser::statement(){
     if (match({TokenType::Say})){
         return print_statement();
+    }
+    else if (match({TokenType::BracketOpen})){
+        return block();
     }
     else{
         return expression_statement();
     }
+}
+
+Statement* Parser::block(){
+    std::cout << "parsing block" << std::endl;
+    std::vector<Declaration*> statements = {};
+    while (!(peek().get_type() == TokenType::BracketClose) && !is_at_end()){
+        statements.push_back(declaration());
+    }
+    consume(TokenType::BracketClose, "Expect '}' after block.");
+    return new Block(std::move(statements));
 }
 
 Statement* Parser::expression_statement(){
@@ -63,6 +109,7 @@ Statement* Parser::expression_statement(){
     consume(TokenType::Semicolon, "Expect ';' after value.");
     return new ExpressionStatement(value);
 }
+
 
 Statement* Parser::print_statement(){
     Expression* value = expression();
@@ -138,6 +185,7 @@ Expression* Parser::factor() {
     return expr;
 }
 
+
 Expression* Parser::primary() {
     if (match({TokenType::Number})) {
         return new Literal(previous().get_value(), TokenType::Number);
@@ -148,6 +196,9 @@ Expression* Parser::primary() {
     if (match ({TokenType::String })){
         return new Literal(previous().get_value(), TokenType::String);
     }
+    if (match ({ TokenType::Identifier })){
+        return new Identifier(previous().get_value());
+    }
     if (match({TokenType::ParenthesisOpen})) {
         Expression* expr = expression();
         if (!match({TokenType::ParenthesisClose})) {
@@ -156,169 +207,4 @@ Expression* Parser::primary() {
         return expr;
     }
     throw std::runtime_error("Expressions must be wrapped in parenthesis");
-}
-
-/*
-void Parser::print_ast(Expression* expr){
-    if (auto binary = dynamic_cast<BinaryExpression*>(expr)) {
-        std::cout << "(";
-        print_ast(binary->left);
-        std::cout << " " << Token::get_type_string(binary->op) << " ";
-        print_ast(binary->right);
-        std::cout << ")";
-    }
-    else if (auto identifier = dynamic_cast<Identifier*>(expr)){
-        std::cout << identifier.name;
-    }
-    else if (auto literal = dynamic_cast<Literal*>(expr)){
-        std::cout << literal->value;
-    }
-}
-*/
-
-Parser::evaluation Parser::evaluate_literal(Literal* literal){
-
-    if (!literal) {
-        throw std::runtime_error("Null literal encountered");
-    }
-
-    std::string literal_value = literal->value;
-    TokenType literal_type = literal->type;
-
-    if (literal_type == TokenType::Number){
-        if (literal_value.empty()) {
-            throw std::runtime_error("Literal value is empty");
-        }
-        return std::stoi(literal_value);
-    }
-    else if (literal_type == TokenType::Boolean){
-        if (literal_value == "true"){
-            return true;
-        }
-        else if (literal_value == "false"){
-            return false;
-        }
-        else{
-            throw std::runtime_error("Unsupported boolean type"); // Should be impossible but just in case
-        }
-    }
-    return literal_value;
-}
-
-Parser::evaluation Parser::evaluate_identifier(Identifier* identifier){
-    throw std::runtime_error("Identifiers are not implemented yet"); 
-}
-
-Parser::evaluation Parser::evaluate_binary(BinaryExpression* binary) {
-    evaluation left = evaluate_expression(binary->left);
-    evaluation right = evaluate_expression(binary->right);
-    TokenType op = binary->op;
-
-    return std::visit([&op](auto&& l, auto&& r) -> Parser::evaluation {
-        using L = std::decay_t<decltype(l)>;
-        using R = std::decay_t<decltype(r)>;
-
-        if constexpr (std::is_same_v<L, int> && std::is_same_v<R, int>) {
-            switch (op) {
-                case TokenType::Plus:      return l + r;
-                case TokenType::Minus:     return l - r;
-                case TokenType::Multiply:  return l * r;
-                case TokenType::Divide:
-                    if (r == 0) throw std::runtime_error("Division by zero");
-                    return l / r;
-                default:
-                    throw std::runtime_error("Unsupported integer operation");
-            }
-        }
-        else if constexpr (std::is_same_v<L, bool> && std::is_same_v<R, bool>){
-            switch(op){
-                case TokenType::And: return l && r;
-                case TokenType::Or: return l || r;
-                default:
-                    throw std::runtime_error("Unsuported boolean operation");
-            }
-        }
-        else {
-            throw std::runtime_error("Unsupported operand types for binary expression");
-        }
-    }, left, right);
-}
-
-
-Parser::evaluation Parser::evaluate_expression(Expression* expr){
-    if (!expr) {
-        throw std::runtime_error("Null expression encountered during evaluation");
-    }
-    else if (auto binary = dynamic_cast<BinaryExpression*>(expr)){
-        return evaluate_binary(binary);
-    }
-    else if (auto identifier = dynamic_cast<Identifier*>(expr)){
-        return evaluate_identifier(identifier);
-    }
-    else if (auto literal = dynamic_cast<Literal*>(expr)){
-        return evaluate_literal(literal);
-    }
-}
-
-std::vector<Statement*> Parser::parse(){
-    std::vector<Statement*> statements;  
-    while (!is_at_end()){
-        Statement* stmnt = statement();
-        statements.push_back(stmnt);
-    }
-    return statements;
-}
-
-
-void Parser::visit_expression_statement(ExpressionStatement* statement){
-    evaluate_expression(statement->expr);
-}
-
-
-void Parser::visit_print_statement(PrintStatement* stmt) {
-    evaluation value = evaluate_expression(stmt->expression);
-
-    std::visit([&](auto&& v){
-        using T = std::decay_t<decltype(v)>;
-        if constexpr (std::is_same_v<T, bool>) {
-            std::cout << std::boolalpha << v;
-        }
-        else {
-            std::cout << v;
-        }
-    }, value);
-
-    std::cout << "\n";
-}
-
-
-void Parser::evaluate_statement(Statement* statement){
-    if (!statement){
-        throw std::runtime_error("Null statement encountered during evaluation");
-    }
-    else if (auto print_statement = dynamic_cast<PrintStatement*>(statement)){
-        visit_print_statement(print_statement);
-    }
-    else if (auto expression_statement = dynamic_cast<ExpressionStatement*>(statement)){
-        visit_expression_statement(expression_statement);
-    }
-}
-
-Statement* Parser::declaration_statement(){
-    std::string variable_type = previous().get_value();
-    Token variable_name = consume(TokenType::Identifier, "Expect varaible name: ");
-    Expression* variable_value = nullptr;
-    if (match({TokenType::Equals})){
-        Expression* variable_value = expression();
-    }
-    consume(TokenType::Semicolon, "Expect ';' after variable declaration.");
-    return new StaticDeclaration(variable_type, variable_name.get_value(), variable_value);
-}
-
-Statement* Parser::declaration(){
-    if (match({TokenType::Type})){
-        return declaration_statement();
-    }
-    
-    return statement();
 }

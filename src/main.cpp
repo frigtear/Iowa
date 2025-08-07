@@ -1,8 +1,11 @@
 #include "scanner.h"
 #include "parser.h"
 #include "token.h"
+#include "evaluator.h"
 #include <iostream>
 #include <variant>
+
+bool debug_mode = false;
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
@@ -13,17 +16,17 @@ int main(int argc, char* argv[]) {
     char* path = argv[1];
     std::vector<Token> tokens = scan_source(path);
 
-    for (const Token& t : tokens) {
-        std::cout << Token::get_type_string(t.get_type()) << ": " << t.get_value() << "\n";
+    if (debug_mode){
+        for (const Token& t : tokens) {
+            std::cout << Token::get_type_string(t.get_type()) << ": " << t.get_value() << "\n";
+        }
     }
-
+    
     Parser parser(tokens);
-    std::vector<Statement*> statements = parser.parse();
+    Evaluator evaluator;
 
-    for(auto& stmnt : statements){
-        std::cout << "Evaluating statement";
-        parser.evaluate_statement(stmnt);
-    };
+    Declaration* root = parser.program();
+    evaluator.execute_program(dynamic_cast<Program*>(root));
 
     return 0;
 }
