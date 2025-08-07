@@ -23,7 +23,7 @@ Iowa is a simple, high‑level interpreted language designed for readability. In
 
 * **Interpreted**: No compilation step—run scripts directly.
 * **High-Level Syntax**: Clean, human-readable code.
-* **Static Typing**
+* **Dynamic Typing**
 * **Platform**: Anything Unix
 
 ---
