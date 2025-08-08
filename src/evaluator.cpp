@@ -1,4 +1,5 @@
 #include "evaluator.h"
+#include <variant>
 
 Evaluator::Evaluator(){
     Environment* environment = new Environment;
@@ -39,45 +40,71 @@ Evaluator::evaluation Evaluator::evaluate_identifier(Identifier* identifier) {
     return current_environment->get_variable_value(identifier->identifier_name); 
 }
 
+
+struct BinaryEvaluator {
+    TokenType op;
+
+    Evaluator::evaluation operator()(int l, int r) const {
+        switch (op) {
+            case TokenType::Plus:             return l + r;
+            case TokenType::Minus:            return l - r;
+            case TokenType::Multiply:         return l * r;
+            case TokenType::Divide:
+                if (r == 0) throw std::runtime_error("Division by zero");
+                return l / r;
+
+            case TokenType::GreaterThan:      return l > r;
+            case TokenType::GreaterEqualsThan:return l >= r;
+            case TokenType::LessThan:         return l < r;
+            case TokenType::LessEqualsThan:   return l <= r;
+
+            case TokenType::EqualsEquals:     return l == r;
+            case TokenType::NotEqual:         return l != r;
+
+            default:
+                throw std::runtime_error("Unsupported integer op: " +
+                                         Token::get_type_string(op));
+        }
+    }
+
+    Evaluator::evaluation operator()(bool l, bool r) const {
+        switch (op) {
+            case TokenType::And:              return l && r;
+            case TokenType::Or:               return l || r;
+            case TokenType::EqualsEquals:     return l == r;
+            case TokenType::NotEqual:         return l != r;
+            default:
+                throw std::runtime_error("Unsupported boolean op: " +
+                                         Token::get_type_string(op));
+        }
+    }
+
+    Evaluator::evaluation operator()(const std::string& l,
+                                     const std::string& r) const {
+        switch (op) {
+            case TokenType::EqualsEquals:     return l == r;
+            case TokenType::NotEqual:         return l != r;
+            default:
+                throw std::runtime_error("Unsupported string op: " +
+                                         Token::get_type_string(op));
+        }
+    }
+
+    template<typename L, typename R>
+    Evaluator::evaluation operator()(L, R) const {
+        throw std::runtime_error(
+            "Type mismatch in binary expression: " +
+            Token::get_type_string(op));
+    }
+};
+
+
 Evaluator::evaluation Evaluator::evaluate_binary(BinaryExpression* binary) {
-    evaluation left = evaluate_expression(binary->left);
-    evaluation right = evaluate_expression(binary->right);
+    auto left  = evaluate_expression(binary->left);
+    auto right = evaluate_expression(binary->right);
     TokenType op = binary->op;
 
-    return std::visit([&op](auto&& l, auto&& r) -> Evaluator::evaluation {
-        using L = std::decay_t<decltype(l)>;
-        using R = std::decay_t<decltype(r)>;
-
-        if constexpr (std::is_same_v<L, int> && std::is_same_v<R, int>) {
-            switch (op) {
-                case TokenType::Plus:      return l + r;
-                case TokenType::Minus:     return l - r;
-                case TokenType::Multiply:  return l * r;
-                case TokenType::Divide:
-                    if (r == 0) throw std::runtime_error("Division by zero");
-                    return l / r;
-                    
-                case TokenType::GreaterThan: return l > r;
-                case TokenType::GreaterEqualsThan: l >= r;
-                case TokenType::LessThan: return l < r;
-                case TokenType::LessEqualsThan: return l <= r;
-                case TokenType::EqualsEquals: return l == r;
-                case TokenType::NotEqual: return l != r;
-                
-                default:
-                    throw std::runtime_error("Unsupported integer operation");
-            }
-        } else if constexpr (std::is_same_v<L, bool> && std::is_same_v<R, bool>) {
-            switch (op) {
-                case TokenType::And: return l && r;
-                case TokenType::Or:  return l || r;
-                default:
-                    throw std::runtime_error("Unsupported boolean operation");
-            }
-        } else {
-            throw std::runtime_error("Unsupported operand types for binary expression: " + Token::get_type_string(op));
-        }
-    }, left, right);
+    return std::visit(BinaryEvaluator{op}, left, right);
 }
 
 Evaluator::evaluation Evaluator::evaluate_expression(Expression* expr) {
@@ -168,6 +195,22 @@ void Evaluator::visit_block_statement(Block* block){
         evaluate_declaration(declaration);
     }
     current_environment = prev;
+}
+
+
+void Evaluator::visit_if_statement(IfStatement* if_stmnt){
+    evaluation condition = evaluate_expression(if_stmnt->condition);
+    bool condition_value;
+    if (std::holds_alternative<bool>(v)) {
+        bool condition_value = std::get<bool>(v);
+    }
+    
+    if (condition_value == true){
+        visit_block_statement(if_stmnt->if_block);
+    }
+    else {
+        visit_block_statement(if_stmnt->else_block);
+    }
 }
 
 

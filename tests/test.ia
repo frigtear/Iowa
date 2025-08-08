@@ -1,18 +1,8 @@
-set hello = (false || true);
+set hello = "1";
 
-set z = false;
+set good = "1";
 
-say (hello);
-say (z && hello);
+set result = (hello == good);
 
-
-set x = (5 + (3 + 2));
-set y = 3;
-
-{
-    set x = 3;
-    set y = 3;
-    say (x * y);
-}
-
-say (x * y);
+say (result);
+say (4 > 6);

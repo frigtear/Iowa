@@ -89,6 +89,9 @@ Declaration* Parser::statement(){
     else if (match({TokenType::BracketOpen})){
         return block();
     }
+    else if (match({TokenType::If})){
+        return if_statement();
+    }
     else{
         return expression_statement();
     }
@@ -109,6 +112,30 @@ Statement* Parser::expression_statement(){
     return new ExpressionStatement(value);
 }
 
+
+Statement* Parser::if_statement(){
+    consume(TokenType::BracketOpen, "Expected ( after value.");
+    Expression* condition = expression();
+    consume(TokenType::BracketClose, "Expected ) after value");
+    Statement* if_block = block();
+    Statement* else_block = nullptr;
+
+    if (match({TokenType::Else})){
+        Statement* else_block = block();
+    }
+
+
+    if ( auto thenBlock = dynamic_cast<Block*>(if_block); thenBlock ) {
+        if ( auto elseBlock = dynamic_cast<Block*>(else_block); elseBlock ) {
+            return new IfStatement(condition, thenBlock, elseBlock);
+        }
+    }
+    else{
+        throw std::runtime_error("Issue with parsing if statement, not castable to Block")
+    }
+
+   
+}
 
 Statement* Parser::print_statement(){
     Expression* value = expression();

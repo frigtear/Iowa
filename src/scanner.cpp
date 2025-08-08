@@ -39,17 +39,14 @@ std::vector<Token> Scanner::get_tokens(){
 }
 
 
-Token scan_string(std::ifstream& source){
-
-    std::string result = "";
-    char current = 0;
+Token scan_string(std::ifstream& source) {
+    std::string result;
     char next = source.peek();
-    while (next != std::char_traits<char>::eof() && next != '"') {  
-        current = source.get();  
-        result += current;
+    while (next != std::char_traits<char>::eof() && next != '"') {
+        result += source.get();
+        next = source.peek();
     }
-
-    source.get();
+    source.get();              
     return Token(result, TokenType::String);
 }
 

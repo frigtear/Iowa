@@ -109,15 +109,15 @@ public:
 class IfStatement : public Statement {
 public:
     Expression* condition;
-    Block* thenBlock;
-    Block* elseBlock;  
+    Block* if_block;
+    Block* else_block;
 
-    IfStatement(Expression* cond, Block* t, Block* e = nullptr)
-        : condition(cond), thenBlock(t), elseBlock(e) {}
+    IfStatement(Expression* cond, Block* ib, Block* eb)
+        : condition(cond), if_block(ib), else_block(eb)
     ~IfStatement() {
         delete condition;
-        delete thenBlock;
-        if (elseBlock) delete elseBlock;
+        delete if_block;
+        delete else_block;;
     }
 };
 

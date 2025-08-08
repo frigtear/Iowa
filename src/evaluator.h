@@ -24,6 +24,7 @@ public:
     void visit_print_statement(PrintStatement* stmt);
     void visit_dynamic_declaration(DynamicDeclaration* declaration);
     void visit_block_statement(Block* block);
+    void visit_if_statement(IfStatement* if_stmnt);
 
     void execute_program(Program* program);
 

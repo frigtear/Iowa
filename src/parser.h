@@ -27,9 +27,9 @@ class Parser{
         Declaration* program();
         Statement* print_statement();
         void visit_print_statement(PrintStatement* statement );
-     //   Statement* if_statement();
+        Statement* if_statement();
         Statement* expression_statement();
-      //  Statement* assignment_statement();
+        
         Declaration* dynamic_declaration();
         Statement* block();
 
