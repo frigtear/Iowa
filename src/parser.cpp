@@ -95,7 +95,6 @@ Declaration* Parser::statement(){
 }
 
 Statement* Parser::block(){
-    std::cout << "parsing block" << std::endl;
     std::vector<Declaration*> statements = {};
     while (!(peek().get_type() == TokenType::BracketClose) && !is_at_end()){
         statements.push_back(declaration());
@@ -206,5 +205,9 @@ Expression* Parser::primary() {
         }
         return expr;
     }
-    throw std::runtime_error("Expressions must be wrapped in parenthesis");
+    std::string unmatched_tokens = "";
+    for (auto& token : tokens){
+        unmatched_tokens = unmatched_tokens + token.get_value() + " ";
+    }
+    throw std::runtime_error("ERROR: Could not parse program, unmatched tokend =  " + unmatched_tokens);
 }

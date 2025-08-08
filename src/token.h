@@ -16,7 +16,9 @@ enum class TokenType {
     EqualsEquals,
     NotEqual,
     GreaterThan,
+    GreaterEqualsThan,
     LessThan,
+    LessEqualsThan,
 
     // Keywords
     If,

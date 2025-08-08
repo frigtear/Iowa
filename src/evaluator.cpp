@@ -56,6 +56,14 @@ Evaluator::evaluation Evaluator::evaluate_binary(BinaryExpression* binary) {
                 case TokenType::Divide:
                     if (r == 0) throw std::runtime_error("Division by zero");
                     return l / r;
+                    
+                case TokenType::GreaterThan: return l > r;
+                case TokenType::GreaterEqualsThan: l >= r;
+                case TokenType::LessThan: return l < r;
+                case TokenType::LessEqualsThan: return l <= r;
+                case TokenType::EqualsEquals: return l == r;
+                case TokenType::NotEqual: return l != r;
+                
                 default:
                     throw std::runtime_error("Unsupported integer operation");
             }
@@ -67,7 +75,7 @@ Evaluator::evaluation Evaluator::evaluate_binary(BinaryExpression* binary) {
                     throw std::runtime_error("Unsupported boolean operation");
             }
         } else {
-            throw std::runtime_error("Unsupported operand types for binary expression");
+            throw std::runtime_error("Unsupported operand types for binary expression: " + Token::get_type_string(op));
         }
     }, left, right);
 }

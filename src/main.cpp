@@ -5,7 +5,7 @@
 #include <iostream>
 #include <variant>
 
-bool debug_mode = false;
+bool debug_mode = true;
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {

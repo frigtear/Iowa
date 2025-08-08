@@ -68,7 +68,7 @@ make run
 Invoke the interpreter with a script path:
 
 ```bash
-bin/Iowa path/to/script.ia
+./bin/Iowa path/to/script.ia
 ```
 
 ---
@@ -77,11 +77,10 @@ Run it:
 
 ```bash
 bin/iowa hello.ia
-# Output: Hello, World!
 ```
 
 ## Examples
-```Iowa++
+```iowa++
 set hello = (false || true);
 
 set z = false;
@@ -101,7 +100,7 @@ set y = 3;
 
 say (x * y);
 ```
-# Output: 
+### Output: 
 ```bash
 true
 false

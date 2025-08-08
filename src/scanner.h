@@ -16,11 +16,11 @@ void add_token(std::vector<Token>& tokens, std::string value, TokenType type);
 
 bool isNumeric(char character);
 
-std::string scan_string(std::ifstream& source);
+Token scan_string(std::ifstream& source);
 
-std::string scan_digit(std::ifstream& source);
+Token scan_digit(std::ifstream& source);
 
-std::string scan_identifier(std::ifstream& source);
+Token scan_identifier(std::ifstream& source);
 
 void go_back_one(std::ifstream& source);
 
@@ -31,6 +31,7 @@ class Scanner{
         Scanner();
         
         void add_token(std::string token_value, TokenType token_type);
+        void add_token(const Token& token);
         std::vector<Token> get_tokens();
 
     private:

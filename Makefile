@@ -17,8 +17,11 @@ bin/%.o: src/%.cpp
 
 .PHONY: all clean
 
-run:
+test:
 	make
 	./bin/Iowa tests/test.ia
+
+clean:
+	rm -rf bin
 
 	

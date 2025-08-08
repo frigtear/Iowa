@@ -38,6 +38,8 @@ class Parser{
         Expression* expression();
         Expression* logic_or();
         Expression* logic_and();
+        Expression* logic_lessThan();
+        Expression* logic_greaterThan();
         Expression* equality();
         Expression* comparison();
         Expression* term();

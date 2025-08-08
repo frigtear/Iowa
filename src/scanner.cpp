@@ -7,72 +7,92 @@
 #include "token.h"
 #include "scanner.h"
 
-
 void fail(std::string message){
     std::cerr << message;
     exit(1);
 }
 
+
 bool isNumeric(char character){
     return ('0' <= character  && character <= '9');
 }
 
+
 Scanner::Scanner(){
     tokens = std::vector<Token> {};
 };
+
 
 void Scanner::add_token(std::string token_value, TokenType token_type){
     Token token(token_value, token_type);
     tokens.push_back(token);
 };
 
+
+void Scanner::add_token(const Token& token){
+    tokens.push_back(token);
+}
+
+
 std::vector<Token> Scanner::get_tokens(){
     return tokens;
 }
 
-std::string scan_string(std::ifstream& source){
+
+Token scan_string(std::ifstream& source){
 
     std::string result = "";
     char current = 0;
-
-    while (source.peek() != EOF && source.peek() != '"') {  
+    char next = source.peek();
+    while (next != std::char_traits<char>::eof() && next != '"') {  
         current = source.get();  
         result += current;
     }
 
     source.get();
-    return result;
+    return Token(result, TokenType::String);
 }
 
-std::string scan_digit(std::ifstream& source){
 
+Token scan_digit(std::ifstream& source) {
     std::string digit = "";
     char curr;
     char next = source.peek();
 
-    while(next != EOF && isNumeric(next)){
+    while(next != std::char_traits<char>::eof() && isNumeric(next)){
         curr = source.get();
         next = source.peek();
         digit += curr;
     }
 
-    return digit;
+    return Token(digit, TokenType::Number);
 };
 
-std::string scan_word(std::ifstream& source){
 
-    std::string identifier = "";
+std::string scan_word(std::ifstream& source) {
+    std::string word = "";
     char next = source.peek();
     char curr; 
 
-    while(next != EOF && isalnum(next)){
+    while(next != std::char_traits<char>::eof() && isalnum(next)){
         curr = source.get();
         next = source.peek();
-        identifier += curr;
+        word += curr;
     }
-
-    return identifier;
+    return word;
 };
+
+
+Token scan_two_character_token(std::ifstream& source, char first, char second, TokenType first_type, TokenType second_type){
+    if (source.peek() == second){
+        source.get();
+        std::string token_val {first, second};
+        return Token(token_val, second_type);
+    }
+    std::string token_val {first};
+    return Token(token_val, first_type);
+}
+
 
 void go_back_one(std::ifstream& source) {
     std::streampos position = source.tellg(); 
@@ -87,7 +107,6 @@ std::vector<Token> scan_source(char* path){
     bool errored = false;
     int line_number = 0;
     char character;
-    std::string value;
 
     std::vector<Error> errors;
 
@@ -141,36 +160,31 @@ std::vector<Token> scan_source(char* path){
                 if (source_code.peek() == '|'){
                     scanner.add_token("||", TokenType::Or);
                     source_code.get();
+                    break;
                 }
-                break;
             case '&':
                 if (source_code.peek() == '&'){
                     scanner.add_token("&&", TokenType::And);
                     source_code.get();
+                    break;
                 }
+            case '<':
+                scanner.add_token(scan_two_character_token(source_code, '<', '=', TokenType::LessThan, TokenType::LessEqualsThan));
+                break;
+            case '>':
+                scanner.add_token(scan_two_character_token(source_code, '>', '=', TokenType::GreaterThan, TokenType::GreaterEqualsThan));
                 break;
             case '=':{
-                if (source_code.peek() == '='){
-                    scanner.add_token("==", TokenType::EqualsEquals);
-                    source_code.get();
-                }
-                else{
-                    scanner.add_token("=", TokenType::Equals);
-                }
+                scanner.add_token(scan_two_character_token(source_code, '=', '=', TokenType::Equals, TokenType::EqualsEquals));
                 break;
-            
             }
             case '\n':
                 line_number++;
                 break;
-
             case ' ':
                 break;
-
             case '"':
-                value = scan_string(source_code);
-               // std::cout << "read string: " << value << " from source code" << std::endl;
-                scanner.add_token(value, TokenType::String);  
+                scanner.add_token(scan_string(source_code));  
                 break;       
             case ';':
                 scanner.add_token(";", TokenType::Semicolon);
@@ -178,35 +192,34 @@ std::vector<Token> scan_source(char* path){
             default:
                 if (isNumeric(character)){
                     go_back_one(source_code);
-                    std::string value = scan_digit(source_code);
-                    scanner.add_token(value, TokenType::Number);
+                    scanner.add_token(scan_digit(source_code));
                     break;
                 }
 
                 if (isalpha(character)){
                     go_back_one(source_code);
-                    std::string value = scan_word(source_code);
+                    std::string word = scan_word(source_code);
             
-                    if (value == "if"){
-                        scanner.add_token(value, TokenType::If);
+                    if (word == "if"){
+                        scanner.add_token(word, TokenType::If);
                     }
-                    else if (value == "else"){
-                        scanner.add_token(value, TokenType::Else);
+                    else if (word == "else"){
+                        scanner.add_token(word, TokenType::Else);
                     }
-                    else if (value == "say"){
-                        scanner.add_token(value, TokenType::Say);
+                    else if (word == "say"){
+                        scanner.add_token(word, TokenType::Say);
                     }
-                    else if (value == "set"){
-                        scanner.add_token(value, TokenType::Set);
+                    else if (word == "set"){
+                        scanner.add_token(word, TokenType::Set);
                     }
-                    else if (value == "true"){
-                        scanner.add_token(value, TokenType::Boolean);
+                    else if (word == "true"){
+                        scanner.add_token(word, TokenType::Boolean);
                     }
-                    else if (value == "false"){
-                        scanner.add_token(value, TokenType::Boolean);
+                    else if (word == "false"){
+                        scanner.add_token(word, TokenType::Boolean);
                     }
                     else{
-                        scanner.add_token(value, TokenType::Identifier);
+                        scanner.add_token(word, TokenType::Identifier);
                     };       
                     break; 
                 }
