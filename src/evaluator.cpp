@@ -185,7 +185,6 @@ void Evaluator::visit_print_statement(PrintStatement* stmt) {
 
 void Evaluator::visit_dynamic_declaration(DynamicDeclaration* declaration) {
     evaluation value = evaluate_expression(declaration->value);
-    //std::cout << "Adding value to variable " + declaration->variable_name << std::endl;
     current_environment->add_variable(declaration->variable_name, value);
 }
 

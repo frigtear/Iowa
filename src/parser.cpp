@@ -173,7 +173,6 @@ Expression* Parser::logic_and() {
 Expression* Parser::equality() {
     Expression* expr = comparison();
     while (match({TokenType::EqualsEquals, TokenType::NotEqual})) {
-        std::cout << "parsing equality" << std::endl;
         TokenType op = previous().get_type();
         Expression* right = comparison();
         expr = new BinaryExpression(expr, op, right); 
