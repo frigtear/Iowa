@@ -35,7 +35,7 @@ std::string Token::get_type_string(TokenType type) {
         case TokenType::BracketClose: return "BracketClose";
         case TokenType::If: return "If";
         case TokenType::Else: return "Else";
-        case TokenType::Say: return "Say";
+        case TokenType::ConsoleOut: return "Console_out";
         case TokenType::Set: return "Set";
         case TokenType::String: return "String";
         case TokenType::Number: return "Number";

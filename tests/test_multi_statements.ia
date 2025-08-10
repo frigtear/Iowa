@@ -1,2 +1,2 @@
-say ((((2 + (5 * (3 - 1))) + 1) + (4 - 3) + 3) + (3 + 3) + (4 / 2) / (9 * 2));
-say (false && (false || true) || (false && false));
+output ((((2 + (5 * (3 - 1))) + 1) + (4 - 3) + 3) + (3 + 3) + (4 / 2) / (9 * 2));
+output (false && (false || true) || (false && false));

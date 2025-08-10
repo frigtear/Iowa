@@ -111,8 +111,17 @@ public:
     Expression* condition;
     Block* if_block;
     Block* else_block;
+    bool has_else_block;
 
-    IfStatement(Expression* cond, Block* ib, Block* eb) : condition(cond), if_block(ib), else_block(eb) {};
+
+    IfStatement(Expression* cond, Block* ib, Block* eb) : condition(cond), if_block(ib), else_block(eb) {
+        if (else_block == nullptr){
+            has_else_block = false;
+        }
+        else{
+            has_else_block = true;
+        }
+    };
     ~IfStatement() {
         delete condition;
         delete if_block;

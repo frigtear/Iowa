@@ -4,5 +4,5 @@ set good = "1";
 
 set result = (hello == good);
 
-say (result);
-say (4 > 6);
+output (result);
+output (4 > 6);

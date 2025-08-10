@@ -156,6 +156,8 @@ void Evaluator::evaluate_statement(Declaration* declaration) {
         visit_expression_statement(expr_stmt);
     } else if (auto block = dynamic_cast<Block*>(declaration)){
         visit_block_statement(block);
+    } else if (auto if_stmnt = dynamic_cast<IfStatement*>(declaration)) {
+        visit_if_statement(if_stmnt);
     } else {
         throw std::runtime_error("Unknown statement type");
     }
@@ -183,7 +185,6 @@ void Evaluator::visit_print_statement(PrintStatement* stmt) {
 
 void Evaluator::visit_dynamic_declaration(DynamicDeclaration* declaration) {
     evaluation value = evaluate_expression(declaration->value);
-    //std::cout << "Adding value to variable " + declaration->variable_name << std::endl;
     current_environment->add_variable(declaration->variable_name, value);
 }
 
@@ -202,13 +203,13 @@ void Evaluator::visit_if_statement(IfStatement* if_stmnt){
     evaluation condition = evaluate_expression(if_stmnt->condition);
     bool condition_value;
     if (std::holds_alternative<bool>(condition)) {
-        bool condition_value = std::get<bool>(condition);
+        condition_value = std::get<bool>(condition);
     }
 
     if (condition_value == true){
         visit_block_statement(if_stmnt->if_block);
     }
-    else {
+    else if (if_stmnt->has_else_block == true){
         visit_block_statement(if_stmnt->else_block);
     }
 }
