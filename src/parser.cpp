@@ -131,7 +131,7 @@ Statement* Parser::if_statement(){
         }
     }
     else{
-        throw std::runtime_error("Issue with parsing if statement, not castable to Block")
+        throw std::runtime_error("Issue with parsing if statement, not castable to Block");
     }
 
    

@@ -201,10 +201,10 @@ void Evaluator::visit_block_statement(Block* block){
 void Evaluator::visit_if_statement(IfStatement* if_stmnt){
     evaluation condition = evaluate_expression(if_stmnt->condition);
     bool condition_value;
-    if (std::holds_alternative<bool>(v)) {
-        bool condition_value = std::get<bool>(v);
+    if (std::holds_alternative<bool>(condition)) {
+        bool condition_value = std::get<bool>(condition);
     }
-    
+
     if (condition_value == true){
         visit_block_statement(if_stmnt->if_block);
     }
