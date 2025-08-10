@@ -23,7 +23,7 @@ enum class TokenType {
     // Keywords
     If,
     Else,
-    Say,
+    ConsoleOut,
     Set,
 
     // Symbols

@@ -83,7 +83,7 @@ Declaration* Parser::dynamic_declaration() {
 }
 
 Declaration* Parser::statement(){
-    if (match({TokenType::Say})){
+    if (match({TokenType::ConsoleOut})){
         return print_statement();
     }
     else if (match({TokenType::BracketOpen})){
@@ -113,26 +113,29 @@ Statement* Parser::expression_statement(){
 }
 
 
-Statement* Parser::if_statement(){
-    consume(TokenType::BracketOpen, "Expected ( after value.");
+Statement* Parser::if_statement() {
+    consume(TokenType::ParenthesisOpen, "Expected '(' after 'if'.");
     Expression* condition = expression();
-    consume(TokenType::BracketClose, "Expected ) after value");
-    Statement* if_block = block();
-    Statement* else_block = nullptr;
+    consume(TokenType::ParenthesisClose, "Expected ')' after condition.");
 
-    if (match({TokenType::Else})){
-        Statement* else_block = block();
+    consume(TokenType::BracketOpen, "Expected '{' to start 'if' block.");
+    Statement* thenStmt = block();
+    auto thenBlock = dynamic_cast<Block*>(thenStmt);
+    if (!thenBlock) {
+        throw std::runtime_error("If branch must be a block.");
     }
 
-
-    if ( auto thenBlock = dynamic_cast<Block*>(if_block); thenBlock ) {
-        if ( auto elseBlock = dynamic_cast<Block*>(else_block); elseBlock ) {
-            return new IfStatement(condition, thenBlock, elseBlock);
+    Block* elseBlock = nullptr;
+    if (match({TokenType::Else})) {
+        consume(TokenType::BracketOpen, "Expected '{' to start 'else' block.");
+        Statement* elseStmt = block();
+        elseBlock = dynamic_cast<Block*>(elseStmt);
+        if (!elseBlock) {
+            throw std::runtime_error("Else branch must be a block.");
         }
     }
-    else{
-        throw std::runtime_error("Issue with parsing if statement, not castable to Block");
-    }
+
+    return new IfStatement(condition, thenBlock, elseBlock);
 
    
 }
@@ -170,6 +173,7 @@ Expression* Parser::logic_and() {
 Expression* Parser::equality() {
     Expression* expr = comparison();
     while (match({TokenType::EqualsEquals, TokenType::NotEqual})) {
+        std::cout << "parsing equality" << std::endl;
         TokenType op = previous().get_type();
         Expression* right = comparison();
         expr = new BinaryExpression(expr, op, right); 
@@ -236,5 +240,5 @@ Expression* Parser::primary() {
     for (auto& token : tokens){
         unmatched_tokens = unmatched_tokens + token.get_value() + " ";
     }
-    throw std::runtime_error("ERROR: Could not parse program, unmatched tokend =  " + unmatched_tokens);
+    throw std::runtime_error("ERROR: Could not parse program, unmatched token: " + unmatched_tokens);
 }

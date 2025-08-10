@@ -71,7 +71,7 @@ std::string scan_word(std::ifstream& source) {
     char next = source.peek();
     char curr; 
 
-    while(next != std::char_traits<char>::eof() && isalnum(next)){
+    while(next != std::char_traits<char>::eof() && (isalnum(next) || next == '_')){
         curr = source.get();
         next = source.peek();
         word += curr;
@@ -203,8 +203,8 @@ std::vector<Token> scan_source(char* path){
                     else if (word == "else"){
                         scanner.add_token(word, TokenType::Else);
                     }
-                    else if (word == "say"){
-                        scanner.add_token(word, TokenType::Say);
+                    else if (word == "console_out"){
+                        scanner.add_token(word, TokenType::ConsoleOut);
                     }
                     else if (word == "set"){
                         scanner.add_token(word, TokenType::Set);
