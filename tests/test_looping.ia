@@ -1,0 +1,8 @@
+set number = 0;
+
+console_out(number);
+
+loop (number <= 5){
+    console_out(number);
+    set number = number + 1;
+}

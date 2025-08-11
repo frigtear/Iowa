@@ -80,6 +80,30 @@ Run it:
 # Examples
 
 ## Example 1
+```iowa
+set number = 0;
+
+console_out(number);
+
+loop (number <= 5){
+    console_out(number);
+    set number = number + 1;
+}
+```
+
+### Output: 
+```bash
+0
+0
+1
+2
+3
+4
+5
+6
+```
+
+## Example 2
 ```iowa++
 set number = 3;
 
@@ -99,7 +123,7 @@ false
 number is not 5
 ```
 
-## Example 2
+## Example 3
 ```iowa++
 console_out ((((2 + (5 * (3 - 1))) + 1) + (4 - 3) + 3) + (3 + 3) + (4 / 2) / (9 * 2));
 console_out (false && (false || true) || (false && false));
@@ -111,7 +135,7 @@ console_out (false && (false || true) || (false && false));
 false
 ```
 
-## Example 3
+## Example 4
 ```iowa++
 set x = 5;
 set y = 2;

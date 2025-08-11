@@ -21,8 +21,9 @@ public:
     void visit_expression_statement(const ExpressionStatement* statement);
     void visit_print_statement(const PrintStatement* stmt);
     void visit_dynamic_declaration(const DynamicDeclaration* declaration);
-    void visit_block_statement(const Block* block);
+    void visit_block_statement(const Block* block, bool use_new_scope);
     void visit_if_statement(const IfStatement* if_stmnt);
+    void visit_loop_statement(const LoopStatement* loop_stmnt);
 
     evaluation evaluate_expression(const Expression* expr);
     evaluation evaluate_binary(const BinaryExpression* binary);
