@@ -3,7 +3,7 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#)
 
-Iowa is a simple, high‑level interpreted language designed for readability. Inspired by modern scripting languages, Iowa offers a clean syntax, dynami typing
+Iowa is a simple, high‑level interpreted language designed for readability. Inspired by modern scripting languages, Iowa offers a clean syntax, dynamic typing
 
 ---
 
@@ -15,7 +15,6 @@ Iowa is a simple, high‑level interpreted language designed for readability. In
 5. [Running Tests](#running-tests)
 6. [Usage](#usage)
 7. [Examples](#examples)
-
 
 ---
 
@@ -76,34 +75,72 @@ Invoke the interpreter with a script path:
 Run it:
 
 ```bash
-bin/iowa hello.ia
+./bin/iowa hello.ia
 ```
+# Examples
 
-## Examples
+## Example 1
 ```iowa++
-set hello = (false || true);
+set number = 3;
 
-set z = false;
+console_out (number == 5);
 
-say (hello);
-say (z && hello);
-
-
-set x = (5 + (3 + 2));
-set y = 3;
-
-{
-    set x = 3;
-    set y = 3;
-    say (x * y);
+if (number == 5) {
+    console_out ("number is 5");
+}
+else {
+    console_out ("number is not 5");
 }
 
-say (x * y);
 ```
 ### Output: 
 ```bash
-true
 false
-9
-30
+number is not 5
 ```
+
+## Example 2
+```iowa++
+console_out ((((2 + (5 * (3 - 1))) + 1) + (4 - 3) + 3) + (3 + 3) + (4 / 2) / (9 * 2));
+console_out (false && (false || true) || (false && false));
+```
+
+### Output:
+```bash
+23
+false
+```
+
+## Example 3
+```iowa++
+set x = 5;
+set y = 2;
+
+console_out(x*y);
+
+{
+    set x = 2;
+    console_out(x*y);
+    
+    if (x*y == 4){
+        console_out("Hello World!");
+    }
+    else {
+        console_out("Goodbye World!");
+    }
+}
+```
+
+### Output:
+```bash
+10
+4
+Hello World!
+```
+
+
+
+
+
+
+
