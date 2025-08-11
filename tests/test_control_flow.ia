@@ -1,0 +1,10 @@
+set number = 3;
+
+console_out (number == 5);
+
+if (number == 5) {
+    console_out ("number is 5");
+}
+else {
+    console_out ("number is not 5");
+}
