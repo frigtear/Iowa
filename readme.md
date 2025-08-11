@@ -77,6 +77,7 @@ Run it:
 ```bash
 ./bin/iowa hello.ia
 ```
+# Examples
 
 ## Example 1
 ```iowa++
