@@ -2,13 +2,10 @@
 #include <variant>
 
 Evaluator::Evaluator(){
-    Environment* environment = new Environment;
-    current_environment = environment;
+    current_environment = std::make_unique<Environment>();
 }
 
-Evaluator::~Evaluator() {
-    delete current_environment;
-}
+Evaluator::~Evaluator() = default;  
 
 Evaluator::evaluation Evaluator::evaluate_literal(const Literal* literal) {
     if (!literal) {
@@ -189,15 +186,15 @@ void Evaluator::visit_dynamic_declaration(const DynamicDeclaration* declaration)
 }
 
 
-void Evaluator::visit_block_statement(const Block* block){
-    Environment* prev = current_environment;
-    current_environment = new Environment(prev);
-    for (auto& declaration : block->declarations){
+void Evaluator::visit_block_statement(const Block* block) {
+    auto parent = std::move(current_environment);
+
+    current_environment = std::make_unique<Environment>(parent.get());
+    for (const auto& declaration : block->declarations) {
         evaluate_declaration(declaration.get());
     }
-    current_environment = prev;
+    current_environment = std::move(parent);
 }
-
 
 void Evaluator::visit_if_statement(const IfStatement* if_stmnt){
     evaluation condition = evaluate_expression(if_stmnt->condition.get());

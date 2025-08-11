@@ -16,6 +16,5 @@ class Environment{
            
     private:
         std::unordered_map<std::string, dynamic_type> variables;
-        Environment* parent_environment;
-
+        Environment* parent;
 };
