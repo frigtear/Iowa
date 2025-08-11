@@ -184,7 +184,7 @@ std::unique_ptr<Expression> Parser::equality() {
 
 std::unique_ptr<Expression> Parser::comparison() {
     auto expr = term();
-    while (match({TokenType::GreaterThan, TokenType::LessThan})) {
+    while (match({TokenType::GreaterThan, TokenType::LessThan, TokenType::GreaterEqualsThan, TokenType:: LessEqualsThan})) {
         TokenType op = previous().get_type();
         auto right = term();
         expr = std::make_unique<BinaryExpression>(std::move(expr), op, std::move(right));
