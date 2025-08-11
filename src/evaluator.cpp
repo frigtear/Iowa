@@ -152,9 +152,11 @@ void Evaluator::evaluate_statement(const Declaration* declaration) {
     } else if (auto expr_stmt = dynamic_cast<const ExpressionStatement*>(declaration)) {
         visit_expression_statement(expr_stmt);
     } else if (auto block = dynamic_cast<const Block*>(declaration)){
-        visit_block_statement(block);
+        visit_block_statement(block, true);
     } else if (auto if_stmnt = dynamic_cast<const IfStatement*>(declaration)) {
         visit_if_statement(if_stmnt);
+    } else if (auto loop_stmnt = dynamic_cast<const LoopStatement*>(declaration)){
+        visit_loop_statement(loop_stmnt);
     } else {
         throw std::runtime_error("Unknown statement type");
     }
@@ -185,15 +187,23 @@ void Evaluator::visit_dynamic_declaration(const DynamicDeclaration* declaration)
     current_environment->add_variable(declaration->variable_name, value);
 }
 
+void Evaluator::visit_block_statement(const Block* block, bool use_new_scope) {
 
-void Evaluator::visit_block_statement(const Block* block) {
-    auto parent = std::move(current_environment);
+    if (use_new_scope){
+        auto parent = std::move(current_environment);
+        current_environment = std::make_unique<Environment>(parent.get());
 
-    current_environment = std::make_unique<Environment>(parent.get());
-    for (const auto& declaration : block->declarations) {
-        evaluate_declaration(declaration.get());
+        for (const auto& declaration : block->declarations) {
+            evaluate_declaration(declaration.get());
+        }
+        current_environment = std::move(parent);
     }
-    current_environment = std::move(parent);
+    else{
+        for (const auto& declaration : block->declarations) {
+            evaluate_declaration(declaration.get());
+        }
+    }
+ 
 }
 
 void Evaluator::visit_if_statement(const IfStatement* if_stmnt){
@@ -204,10 +214,25 @@ void Evaluator::visit_if_statement(const IfStatement* if_stmnt){
     }
 
     if (condition_value == true){
-        visit_block_statement(if_stmnt->if_block.get());
+        visit_block_statement(if_stmnt->if_block.get(), true);
     }
     else if (if_stmnt->has_else_block == true){
-        visit_block_statement(if_stmnt->else_block.get());
+        visit_block_statement(if_stmnt->else_block.get(), true);
+    }
+}
+
+
+void Evaluator::visit_loop_statement(const LoopStatement* loop){
+    bool condition_value = true;
+    while (condition_value == true){
+        evaluation condition = evaluate_expression(loop->condition.get());
+
+        if (!std::holds_alternative<bool>(condition)) {
+            throw std::runtime_error("Loop condition must be boolean");
+        }
+
+        condition_value = std::get<bool>(condition);
+        visit_block_statement(loop->loop_block.get(), false);
     }
 }
 

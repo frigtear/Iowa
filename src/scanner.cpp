@@ -203,6 +203,9 @@ std::vector<Token> scan_source(char* path){
                     else if (word == "else"){
                         scanner.add_token(word, TokenType::Else);
                     }
+                    else if (word == "loop"){
+                        scanner.add_token(word, TokenType::Loop);
+                    }
                     else if (word == "console_out"){
                         scanner.add_token(word, TokenType::ConsoleOut);
                     }

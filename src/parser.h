@@ -30,14 +30,13 @@ public:
 
     std::unique_ptr<Statement> print_statement();
     std::unique_ptr<Statement> if_statement();
+    std::unique_ptr<Statement> loop_statement();
     std::unique_ptr<Statement> expression_statement();
     std::unique_ptr<Statement> block();
 
     std::unique_ptr<Expression> expression();
     std::unique_ptr<Expression> logic_or();
     std::unique_ptr<Expression> logic_and();
-    std::unique_ptr<Expression> logic_lessThan();
-    std::unique_ptr<Expression> logic_greaterThan();
     std::unique_ptr<Expression> equality();
     std::unique_ptr<Expression> comparison();
     std::unique_ptr<Expression> term();

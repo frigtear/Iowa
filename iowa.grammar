@@ -20,6 +20,7 @@ Primary         → Identifier | Literal | "(" Expression ")" ;
 
 ExpressionStatement → Expression ";" ;
 If              → "if" "(" Expression ")" Block ("else" Block)? ;
+Loop            → "loop" "(" Expression ")" Block ;
 PrintStatement  → "say" "(" Expression ")";
 
 Literal         → Number | String ;

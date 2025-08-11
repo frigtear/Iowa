@@ -17,7 +17,7 @@ Environment::dynamic_type Environment::get_variable_value(const std::string& nam
 }
 
 void Environment::add_variable(std::string name, dynamic_type variable){
-    variables.emplace(std::move(name), std::move(variable));
+    variables.insert_or_assign(std::move(name), std::move(variable));
 }
 
 void Environment::remove_variable(const std::string& name){

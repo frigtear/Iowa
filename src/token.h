@@ -25,6 +25,7 @@ enum class TokenType {
     Else,
     ConsoleOut,
     Set,
+    Loop,
 
     // Symbols
     Semicolon,

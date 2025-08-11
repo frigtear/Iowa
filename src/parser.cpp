@@ -87,6 +87,8 @@ std::unique_ptr<Declaration> Parser::statement() {
         return block();
     } else if (match({TokenType::If})) {
         return if_statement();
+    } else if (match({TokenType::Loop})){
+        return loop_statement();
     } else {
         return expression_statement();
     }
@@ -128,6 +130,16 @@ std::unique_ptr<Statement> Parser::if_statement() {
     }
 
     return std::make_unique<IfStatement>(std::move(condition), std::move(thenBlock), std::move(elseBlock));
+}
+
+std::unique_ptr<Statement> Parser::loop_statement() {
+    consume(TokenType::ParenthesisOpen, "Expected '(' after 'loop'.");
+    auto condition = expression();
+    consume(TokenType::ParenthesisClose, "Expected ')' after condition.");
+    consume(TokenType::BracketOpen, "Expected '{' to start 'loop' block.");
+    auto loop_block = std::unique_ptr<Block>(dynamic_cast<Block*>(block().release()));
+
+    return std::make_unique<LoopStatement>(std::move(condition), std::move(loop_block));
 }
 
 std::unique_ptr<Statement> Parser::print_statement() {

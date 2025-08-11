@@ -29,27 +29,27 @@ public:
     std::string variable_name;
     std::unique_ptr<Expression> value;
 
-    DynamicDeclaration(
-                    std::string name,
-                    std::unique_ptr<Expression>  val)
+    DynamicDeclaration(std::string name,
+                       std::unique_ptr<Expression> val)
         : variable_name(std::move(name)), value(std::move(val)) {}
 };
-
 
 class Literal : public Expression {
 public:
     std::string value;
     TokenType type;
-    Literal(const std::string& val, TokenType t) : value(val), type(t) {}
-};
 
+    Literal(std::string val, TokenType t)
+        : value(std::move(val)), type(t) {}
+};
 
 class IdentifierExpr : public Expression {
 public:
     std::string name;
-    IdentifierExpr(const std::string& n) : name(n) {}
-};
 
+    IdentifierExpr(std::string n)
+        : name(std::move(n)) {}
+};
 
 class BinaryExpression : public Expression {
 public:
@@ -57,14 +57,18 @@ public:
     TokenType op;
     std::unique_ptr<Expression> right;
 
-    BinaryExpression(std::unique_ptr<Expression> l, TokenType o, std::unique_ptr<Expression> r)
+    BinaryExpression(std::unique_ptr<Expression> l,
+                     TokenType o,
+                     std::unique_ptr<Expression> r)
         : left(std::move(l)), op(o), right(std::move(r)) {}
 };
 
 class Identifier : public Expression{
 public:
     std::string identifier_name;
-    Identifier(const std::string& name) : identifier_name(name) {};
+
+    Identifier(std::string name)
+        : identifier_name(std::move(name)) {}
 };
 
 class Assignment : public Statement {
@@ -72,24 +76,26 @@ public:
     std::unique_ptr<IdentifierExpr> variable;
     std::unique_ptr<Expression> value;
 
-    Assignment(std::unique_ptr<IdentifierExpr> var, std::unique_ptr<Expression> val)
+    Assignment(std::unique_ptr<IdentifierExpr> var,
+               std::unique_ptr<Expression> val)
         : variable(std::move(var)), value(std::move(val)) {}
 };
-
 
 class ExpressionStatement : public Statement {
 public:
     std::unique_ptr<Expression> expr;
-    ExpressionStatement(std::unique_ptr<Expression>e) : expr(std::move(e)) {}
-};
 
+    ExpressionStatement(std::unique_ptr<Expression> e)
+        : expr(std::move(e)) {}
+};
 
 class Block : public Statement {
 public:
     std::vector<std::unique_ptr<Declaration>> declarations;
-    Block(std::vector<std::unique_ptr<Declaration>> stmts) : declarations(std::move(stmts)) {}
-};
 
+    Block(std::vector<std::unique_ptr<Declaration>> stmts)
+        : declarations(std::move(stmts)) {}
+};
 
 class IfStatement : public Statement {
 public:
@@ -98,30 +104,44 @@ public:
     std::unique_ptr<Block> else_block;
     bool has_else_block;
 
-
-    IfStatement(std::unique_ptr<Expression> cond, std::unique_ptr<Block> ib, std::unique_ptr<Block>  eb) : condition(std::move(cond)), if_block(std::move(ib)), else_block(std::move(eb)) {
+    IfStatement(std::unique_ptr<Expression> cond,
+                std::unique_ptr<Block> ib,
+                std::unique_ptr<Block> eb)
+        : condition(std::move(cond)),
+          if_block(std::move(ib)),
+          else_block(std::move(eb)) {
         if (else_block == nullptr){
             has_else_block = false;
-        }
-        else{
+        } else {
             has_else_block = true;
         }
-    };
+    }
 };
 
+class LoopStatement : public Statement{
+public:
+    std::unique_ptr<Expression> condition;
+    std::unique_ptr<Block> loop_block;
+
+    LoopStatement(std::unique_ptr<Expression> cond,
+                  std::unique_ptr<Block> lb)
+        : condition(std::move(cond)), loop_block(std::move(lb)) {}
+};
 
 class PrintStatement : public Statement {
 public:
     std::unique_ptr<Expression> expression;
-    PrintStatement(std::unique_ptr<Expression> expr) : expression(std::move(expr)) {}
+
+    PrintStatement(std::unique_ptr<Expression> expr)
+        : expression(std::move(expr)) {}
 };
 
 class Program : public Declaration{
 public:
     std::vector<std::unique_ptr<Declaration>> declarations;
 
-    Program(std::vector<std::unique_ptr<Declaration>> decls) : declarations(std::move(decls)) {}
-   
+    Program(std::vector<std::unique_ptr<Declaration>> decls)
+        : declarations(std::move(decls)) {}
 };
 
-#endif 
+#endif // EXPRESSIONS_H
