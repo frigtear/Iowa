@@ -1,8 +1,9 @@
+// evaluator.h
+#pragma once
+#include <variant>
+#include <memory>
 #include "ast.h"
-#include "environment.h"
-
-#ifndef EVALUATOR_H
-#define EVALUATOR_H
+#include "environment.h" // whatever defines Environment
 
 class Evaluator {
 public:
@@ -11,25 +12,24 @@ public:
     Evaluator();
     ~Evaluator();
 
-    void evaluate(const std::vector<Statement*>& statements);
+    void execute_program(const Program* program);
+    void evaluate(const std::vector<std::unique_ptr<Statement>>& statements); 
+    void evaluate(const std::vector<Statement*>& statements);               
 
-    evaluation evaluate_expression(Expression* expr);
-    evaluation evaluate_literal(Literal* literal);
-    evaluation evaluate_identifier(Identifier* identifier);
-    evaluation evaluate_binary(BinaryExpression* binary);
+    void evaluate_declaration(const Declaration* declaration);
+    void evaluate_statement(const Declaration* declaration);
 
-    void evaluate_statement(Declaration* statement);
-    void evaluate_declaration(Declaration* declaration);
-    void visit_expression_statement(ExpressionStatement* statement);
-    void visit_print_statement(PrintStatement* stmt);
-    void visit_dynamic_declaration(DynamicDeclaration* declaration);
-    void visit_block_statement(Block* block);
-    void visit_if_statement(IfStatement* if_stmnt);
+    void visit_expression_statement(const ExpressionStatement* statement);
+    void visit_print_statement(const PrintStatement* stmt);
+    void visit_dynamic_declaration(const DynamicDeclaration* declaration);
+    void visit_block_statement(const Block* block);
+    void visit_if_statement(const IfStatement* if_stmnt);
 
-    void execute_program(Program* program);
+    evaluation evaluate_expression(const Expression* expr);
+    evaluation evaluate_binary(const BinaryExpression* binary);
+    evaluation evaluate_identifier(const Identifier* identifier);
+    evaluation evaluate_literal(const Literal* literal);
 
 private:
-    Environment* current_environment;
+    Environment* current_environment; 
 };
-
-#endif
