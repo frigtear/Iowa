@@ -92,7 +92,7 @@ else {
 }
 
 ```
-## Output: 
+### Output: 
 ```bash
 false
 number is not 5
@@ -104,7 +104,7 @@ console_out ((((2 + (5 * (3 - 1))) + 1) + (4 - 3) + 3) + (3 + 3) + (4 / 2) / (9 
 console_out (false && (false || true) || (false && false));
 ```
 
-## Output:
+### Output:
 ```bash
 23
 false
@@ -130,7 +130,7 @@ console_out(x*y);
 }
 ```
 
-## Output:
+### Output:
 ```bash
 10
 4
