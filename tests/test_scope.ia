@@ -1,0 +1,16 @@
+set x = 5;
+set y = 2;
+
+console_out(x*y);
+
+{
+    set x = 2;
+    console_out(x*y);
+    
+    if (x*y == 4){
+        console_out("Hello World!");
+    }
+    else {
+        console_out("Goodbye World!");
+    }
+}

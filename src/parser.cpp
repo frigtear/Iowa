@@ -1,14 +1,15 @@
 #include "parser.h"
 #include "token.h"
 #include <vector>
+#include <memory>
 #include "errors.h"
 
-Token Parser::peek() const{
+Token Parser::peek() const {
     return tokens.at(current);
 }
 
 Token Parser::previous() {
-    if (current > 0){
+    if (current > 0) {
         return tokens.at(current - 1);
     }
     return Token("", TokenType::Eof);
@@ -20,34 +21,33 @@ Token Parser::consume(TokenType expected, const std::string& errorMessage) {
         next();
         return temp;
     }
-    throw std::runtime_error(errorMessage + 
+    throw std::runtime_error(errorMessage +
         " Got “" + Token::get_type_string(peek().get_type()) + "”.");
 }
 
 Token Parser::next() {
-    if (current < number_of_tokens - 1){
+    if (current < number_of_tokens - 1) {
         current++;
         return peek();
     }
     return Token("", TokenType::Eof);
 }
 
-bool Parser::is_at_end(){
+bool Parser::is_at_end() {
     return (peek().get_type() == TokenType::Eof);
 }
 
-bool Parser::check(TokenType type) const{
+bool Parser::check(TokenType type) const {
     return (peek().get_type() == type);
 }
 
-Parser::Parser(std::vector<Token> t) : tokens(t), current(0)
-{
+Parser::Parser(std::vector<Token> t) : tokens(t), current(0) {
     number_of_tokens = t.size();
 }
 
-bool Parser::match(std::vector<TokenType> types){
-    for (auto type : types){
-        if (peek().get_type() == type){
+bool Parser::match(std::vector<TokenType> types) {
+    for (auto type : types) {
+        if (peek().get_type() == type) {
             next();
             return true;
         }
@@ -55,189 +55,177 @@ bool Parser::match(std::vector<TokenType> types){
     return false;
 }
 
-Declaration* Parser::program(){
-    std::vector<Declaration*> declarations;
-    while (!is_at_end()){
-        declarations.push_back((declaration()));
+std::unique_ptr<Declaration> Parser::program() {
+    std::vector<std::unique_ptr<Declaration>> declarations;
+    while (!is_at_end()) {
+        declarations.push_back(declaration());
     }
-    return new Program(std::move(declarations));
+    return std::make_unique<Program>(std::move(declarations));
 }
 
-Declaration* Parser::declaration(){
+std::unique_ptr<Declaration> Parser::declaration() {
     if (match({TokenType::Set})) {
         return dynamic_declaration();
-    }
-    else{
+    } else {
         return statement();
     }
 }
 
-Declaration* Parser::dynamic_declaration() {
-
+std::unique_ptr<Declaration> Parser::dynamic_declaration() {
     Token nameToken = consume(TokenType::Identifier, "Expected variable name after 'set'.");
     std::string variable_name = nameToken.get_value();
     consume(TokenType::Equals, "Expected '=' after variable name.");
-    Expression* variable_value = expression();
-    consume(TokenType::Semicolon,"Expected ';' after variable declaration.");
-    return new DynamicDeclaration(variable_name, variable_value);
+    auto variable_value = expression();
+    consume(TokenType::Semicolon, "Expected ';' after variable declaration.");
+    return std::make_unique<DynamicDeclaration>(std::move(variable_name), std::move(variable_value));
 }
 
-Declaration* Parser::statement(){
-    if (match({TokenType::ConsoleOut})){
+std::unique_ptr<Declaration> Parser::statement() {
+    if (match({TokenType::ConsoleOut})) {
         return print_statement();
-    }
-    else if (match({TokenType::BracketOpen})){
+    } else if (match({TokenType::BracketOpen})) {
         return block();
-    }
-    else if (match({TokenType::If})){
+    } else if (match({TokenType::If})) {
         return if_statement();
-    }
-    else{
+    } else {
         return expression_statement();
     }
 }
 
-Statement* Parser::block(){
-    std::vector<Declaration*> statements = {};
-    while (!(peek().get_type() == TokenType::BracketClose) && !is_at_end()){
+std::unique_ptr<Statement> Parser::block() {
+    std::vector<std::unique_ptr<Declaration>> statements;
+    while (!(peek().get_type() == TokenType::BracketClose) && !is_at_end()) {
         statements.push_back(declaration());
     }
     consume(TokenType::BracketClose, "Expect '}' after block.");
-    return new Block(std::move(statements));
+    return std::make_unique<Block>(std::move(statements));
 }
 
-Statement* Parser::expression_statement(){
-    Expression* value = expression();
+std::unique_ptr<Statement> Parser::expression_statement() {
+    auto value = expression();
     consume(TokenType::Semicolon, "Expect ';' after value.");
-    return new ExpressionStatement(value);
+    return std::make_unique<ExpressionStatement>(std::move(value));
 }
 
-
-Statement* Parser::if_statement() {
+std::unique_ptr<Statement> Parser::if_statement() {
     consume(TokenType::ParenthesisOpen, "Expected '(' after 'if'.");
-    Expression* condition = expression();
+    auto condition = expression();
     consume(TokenType::ParenthesisClose, "Expected ')' after condition.");
 
     consume(TokenType::BracketOpen, "Expected '{' to start 'if' block.");
-    Statement* thenStmt = block();
-    auto thenBlock = dynamic_cast<Block*>(thenStmt);
+    auto thenBlock = std::unique_ptr<Block>(dynamic_cast<Block*>(block().release()));
     if (!thenBlock) {
         throw std::runtime_error("If branch must be a block.");
     }
 
-    Block* elseBlock = nullptr;
+    std::unique_ptr<Block> elseBlock = nullptr;
     if (match({TokenType::Else})) {
         consume(TokenType::BracketOpen, "Expected '{' to start 'else' block.");
-        Statement* elseStmt = block();
-        elseBlock = dynamic_cast<Block*>(elseStmt);
+        elseBlock = std::unique_ptr<Block>(dynamic_cast<Block*>(block().release()));
         if (!elseBlock) {
             throw std::runtime_error("Else branch must be a block.");
         }
     }
 
-    return new IfStatement(condition, thenBlock, elseBlock);
-
-   
+    return std::make_unique<IfStatement>(std::move(condition), std::move(thenBlock), std::move(elseBlock));
 }
 
-Statement* Parser::print_statement(){
-    Expression* value = expression();
+std::unique_ptr<Statement> Parser::print_statement() {
+    auto value = expression();
     consume(TokenType::Semicolon, "Expect ';' after value.");
-    return new PrintStatement(value);
+    return std::make_unique<PrintStatement>(std::move(value));
 }
 
-Expression* Parser::expression() {
+std::unique_ptr<Expression> Parser::expression() {
     return logic_or();
 }
 
-Expression* Parser::logic_or() {
-    Expression* expr = logic_and();
+std::unique_ptr<Expression> Parser::logic_or() {
+    auto expr = logic_and();
     while (match({TokenType::Or})) {
         TokenType op = previous().get_type();
-        Expression* right = logic_and();
-        expr = new BinaryExpression(expr, op, right);
+        auto right = logic_and();
+        expr = std::make_unique<BinaryExpression>(std::move(expr), op, std::move(right));
     }
     return expr;
 }
 
-Expression* Parser::logic_and() {
-    Expression* expr = equality();
+std::unique_ptr<Expression> Parser::logic_and() {
+    auto expr = equality();
     while (match({TokenType::And})) {
         TokenType op = previous().get_type();
-        Expression* right = equality();
-        expr = new BinaryExpression(expr, op, right);
+        auto right = equality();
+        expr = std::make_unique<BinaryExpression>(std::move(expr), op, std::move(right));
     }
     return expr;
 }
 
-Expression* Parser::equality() {
-    Expression* expr = comparison();
+std::unique_ptr<Expression> Parser::equality() {
+    auto expr = comparison();
     while (match({TokenType::EqualsEquals, TokenType::NotEqual})) {
         TokenType op = previous().get_type();
-        Expression* right = comparison();
-        expr = new BinaryExpression(expr, op, right); 
+        auto right = comparison();
+        expr = std::make_unique<BinaryExpression>(std::move(expr), op, std::move(right));
     }
     return expr;
 }
 
-Expression* Parser::comparison(){
-    Expression* expr = term();
+std::unique_ptr<Expression> Parser::comparison() {
+    auto expr = term();
     while (match({TokenType::GreaterThan, TokenType::LessThan})) {
         TokenType op = previous().get_type();
-        Expression* right = term();
-        expr = new BinaryExpression(expr, op, right); 
+        auto right = term();
+        expr = std::make_unique<BinaryExpression>(std::move(expr), op, std::move(right));
     }
     return expr;
 }
 
-Expression* Parser::term(){
-    Expression* expr = factor();
-    while (match({TokenType::Plus, TokenType::Minus})){
+std::unique_ptr<Expression> Parser::term() {
+    auto expr = factor();
+    while (match({TokenType::Plus, TokenType::Minus})) {
         TokenType op = previous().get_type();
-        Expression* right = factor();
-        expr = new BinaryExpression(expr, op, right); 
+        auto right = factor();
+        expr = std::make_unique<BinaryExpression>(std::move(expr), op, std::move(right));
     }
     return expr;
 }
 
-
-Expression* Parser::factor() {
-    Expression* expr = primary();
+std::unique_ptr<Expression> Parser::factor() {
+    auto expr = primary();
     while (match({TokenType::Multiply, TokenType::Divide})) {
         TokenType op = previous().get_type();
-        Expression* right = factor(); 
+        auto right = factor();
         if (!right) {
             throw std::runtime_error("Missing right-hand side of binary operator");
         }
-        expr = new BinaryExpression(expr, op, right);
+        expr = std::make_unique<BinaryExpression>(std::move(expr), op, std::move(right));
     }
     return expr;
 }
 
-
-Expression* Parser::primary() {
+std::unique_ptr<Expression> Parser::primary() {
     if (match({TokenType::Number})) {
-        return new Literal(previous().get_value(), TokenType::Number);
+        return std::make_unique<Literal>(previous().get_value(), TokenType::Number);
     }
-    if (match({ TokenType::Boolean })) {
-        return new Literal(previous().get_value(), TokenType::Boolean);
+    if (match({TokenType::Boolean})) {
+        return std::make_unique<Literal>(previous().get_value(), TokenType::Boolean);
     }
-    if (match ({TokenType::String })){
-        return new Literal(previous().get_value(), TokenType::String);
+    if (match({TokenType::String})) {
+        return std::make_unique<Literal>(previous().get_value(), TokenType::String);
     }
-    if (match ({ TokenType::Identifier })){
-        return new Identifier(previous().get_value());
+    if (match({TokenType::Identifier})) {
+        return std::make_unique<Identifier>(previous().get_value());
     }
     if (match({TokenType::ParenthesisOpen})) {
-        Expression* expr = expression();
+        auto expr = expression();
         if (!match({TokenType::ParenthesisClose})) {
             throw std::runtime_error("Expected closing parenthesis.");
         }
         return expr;
     }
-    std::string unmatched_tokens = "";
-    for (auto& token : tokens){
-        unmatched_tokens = unmatched_tokens + token.get_value() + " ";
+    std::string unmatched_tokens;
+    for (auto& token : tokens) {
+        unmatched_tokens += token.get_value() + " ";
     }
     throw std::runtime_error("ERROR: Could not parse program, unmatched token: " + unmatched_tokens);
 }

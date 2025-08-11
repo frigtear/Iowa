@@ -25,8 +25,8 @@ int main(int argc, char* argv[]) {
     Parser parser(tokens);
     Evaluator evaluator;
 
-    Declaration* root = parser.program();
-    evaluator.execute_program(dynamic_cast<Program*>(root));
+    std::unique_ptr<Declaration> root = parser.program();
+    evaluator.execute_program(dynamic_cast<Program*>(root.get()));
 
     return 0;
 }
