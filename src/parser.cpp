@@ -2,6 +2,7 @@
 #include "token.h"
 #include <vector>
 #include <memory>
+#include <unordered_map>
 #include "errors.h"
 
 Token Parser::peek() const {
@@ -242,11 +243,17 @@ std::unique_ptr<Expression> Parser::call(){
 }
 
 std::unique_ptr<Arguments> Parser::arguments(){
-    std::vector<std::unique_ptr<Expression>> args;
-    while (match({TokenType::Identifier})){
+    Token argument;
+    std::unordered_map<std::string, std::unique_ptr<Expression>> args;
+    while (match({TokenType::Identifier}, argument)){
+        std::string argument_name = (argument.get_value());
+        if (args.contains(argument_name)){
+            throw std::runtime_error("No repeating argument names");
+        }
         consume(TokenType::Equals, "Expected '=' after identifier");
-        args.push_back(expression());
+        args.emplace(argument_name, expression());
     }
+
     std::unique_ptr<Arguments> arguments = std::make_unique<Arguments>(std::move(args));
     return arguments;
 }

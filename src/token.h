@@ -46,6 +46,7 @@ enum class TokenType {
 
 class Token {
 public:
+    Token();
     Token(std::string val, TokenType type);
     std::string get_value() const;
     TokenType get_type() const;

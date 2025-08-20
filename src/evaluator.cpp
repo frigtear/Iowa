@@ -104,10 +104,6 @@ Evaluator::evaluation Evaluator::evaluate_binary(const BinaryExpression* binary)
     return std::visit(BinaryEvaluator{op}, left, right);
 }
 
-Evaluator::evaluation evaluate_call(const Call* call){
-    throw std::runtime_error("function calls not implemented yet");
-}
-
 Evaluator::evaluation Evaluator::evaluate_expression(const Expression* expr) {
     if (!expr) {
         throw std::runtime_error("Null expression encountered during evaluation");
@@ -124,6 +120,23 @@ Evaluator::evaluation Evaluator::evaluate_expression(const Expression* expr) {
     }
 
     throw std::runtime_error("Unknown expression type");
+}
+
+Evaluator::evaluation Evaluator::evaluate_call(const Call* call){
+
+    auto callee = call->callee.get();
+    auto args = call->arguments.get();
+
+    auto parent = std::move(current_environment);
+    auto clojure = std::make_unique<Environment>(parent.get());
+
+    for (auto& argument : args->arguments){
+        std::cout << "Argument: " << argument.first << std::endl;
+        Evaluator::evaluation argument_value = evaluate_expression(argument.second.get());
+        clojure->add_variable(argument.first, argument_value);
+    }
+
+    throw std::runtime_error("function calls not implemented yet");
 }
 
 void Evaluator::evaluate(const std::vector<Statement*>& statements) {

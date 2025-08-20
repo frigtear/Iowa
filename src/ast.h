@@ -72,9 +72,9 @@ public:
 
 class Arguments : public Expression {
 public:
-    std::vector<std::unique_ptr<Expression>> arguments;
+    std::unordered_map<std::string, std::unique_ptr<Expression>> arguments;
 
-    Arguments(std::vector<std::unique_ptr<Expression>> args) : arguments(std::move(args)) {};
+    Arguments(std::unordered_map<std::string, std::unique_ptr<Expression>> args) : arguments(std::move(args)) {};
 };
 
 
@@ -82,6 +82,7 @@ class Call : public Expression {
 public:
     std::unique_ptr<Expression> callee;
     std::unique_ptr<Arguments> arguments;
+    
 
     Call (std::unique_ptr<Expression> cl, std::unique_ptr<Arguments> args) : callee(std::move(cl)),  arguments(std::move(args)) {}
 };

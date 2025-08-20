@@ -29,6 +29,7 @@ public:
     evaluation evaluate_binary(const BinaryExpression* binary);
     evaluation evaluate_identifier(const Identifier* identifier);
     evaluation evaluate_literal(const Literal* literal);
+    evaluation evaluate_call(const Call* call);
 
 private:
     std::unique_ptr<Environment> current_environment; 

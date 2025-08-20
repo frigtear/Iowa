@@ -1,5 +1,7 @@
 #include "token.h"
 
+Token::Token() {}
+
 Token::Token(std::string val, TokenType t) {
     value = val;
     type = t;
