@@ -19,8 +19,8 @@ public:
     Token consume(TokenType expected, const std::string& errorMessage);
 
     bool is_at_end();
-    bool match(std::vector<std::string> types);
     bool match(std::vector<TokenType> types);
+    bool match(std::vector<TokenType> types, Token& matched_token);
     bool check(TokenType type) const;
 
     std::unique_ptr<Declaration> program();
@@ -42,6 +42,8 @@ public:
     std::unique_ptr<Expression> term();
     std::unique_ptr<Expression> factor();
     std::unique_ptr<Expression> primary();
+    std::unique_ptr<Expression> call();
+    std::unique_ptr<Arguments> arguments();
     std::unique_ptr<Expression> assignment();
     std::unique_ptr<Expression> literal();
     std::unique_ptr<Expression> identifier();
@@ -51,6 +53,7 @@ public:
     std::unique_ptr<Expression> comparison_operator();
 
 private:
+    bool match_impl(std::vector<TokenType>& types, Token* out);
     std::vector<Token> tokens;
     int current;
     int number_of_tokens;

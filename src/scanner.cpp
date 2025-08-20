@@ -218,6 +218,9 @@ std::vector<Token> scan_source(char* path){
                     else if (word == "false"){
                         scanner.add_token(word, TokenType::Boolean);
                     }
+                    else if (word == "function"){
+                        scanner.add_token(word, TokenType::Function);
+                    }
                     else{
                         scanner.add_token(word, TokenType::Identifier);
                     };       

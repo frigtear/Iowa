@@ -19,7 +19,7 @@ bin/%.o: src/%.cpp
 
 test:
 	make
-	./bin/Iowa tests/test_looping.ia
+	./bin/Iowa tests/test_function_call.ia
 
 clean:
 	rm -rf bin

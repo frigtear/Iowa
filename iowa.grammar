@@ -1,27 +1,30 @@
 Program        → Declaration* EOF ;
 
-Declaration    → StaticDecl 
+Declaration    → DynamicDecl 
                | Statement ;
 
 Statement       → ExpressionStatement
                 | If
-                | Block ;
+                | Block 
                 | PrintStatement
+                | Loop ;
 
 Block           → "{" Statement* "}" ;
 DynamicDecl     → "set" Identifier "=" Expression ";" ;
 
-Expression      → Equality ;
+Expression      → Equality;
 Equality        → Comparison (EqualityOperator Comparison)* ;
 Comparison      → Term (ComparisonOperator Term)* ;
 Term            → Factor (("+" | "-") Factor)* ;
-Factor          → Primary (("*" | "/") Primary)* ;
-Primary         → Identifier | Literal | "(" Expression ")" ;
+Factor          → Call (("*" | "/") Call)* ;
+Call            → Primary ("(" Arguments? ")");
+Primary         → Identifier | Literal | "(" Expression ")";
 
+Arguments       → Identifier "=" Expression ( "," Identifier "=" Expression )* ;
 ExpressionStatement → Expression ";" ;
 If              → "if" "(" Expression ")" Block ("else" Block)? ;
 Loop            → "loop" "(" Expression ")" Block ;
-PrintStatement  → "say" "(" Expression ")";
+PrintStatement  → "set" "(" Expression ")";
 
 Literal         → Number | String ;
 Identifier      → [a-zA-Z_][a-zA-Z0-9_]* ;

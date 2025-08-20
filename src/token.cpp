@@ -42,6 +42,7 @@ std::string Token::get_type_string(TokenType type) {
         case TokenType::Number: return "Number";
         case TokenType::Boolean: return "Boolean"; 
         case TokenType::Identifier: return "Identifier";
+        case TokenType::Function: return "Function";
         case TokenType::Eof: return "EOF";
         default: return "Unknown";
     }

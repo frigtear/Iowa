@@ -104,6 +104,10 @@ Evaluator::evaluation Evaluator::evaluate_binary(const BinaryExpression* binary)
     return std::visit(BinaryEvaluator{op}, left, right);
 }
 
+Evaluator::evaluation evaluate_call(const Call* call){
+    throw std::runtime_error("function calls not implemented yet");
+}
+
 Evaluator::evaluation Evaluator::evaluate_expression(const Expression* expr) {
     if (!expr) {
         throw std::runtime_error("Null expression encountered during evaluation");
@@ -115,6 +119,8 @@ Evaluator::evaluation Evaluator::evaluate_expression(const Expression* expr) {
         return evaluate_identifier(identifier);
     } else if (auto literal = dynamic_cast<const Literal*>(expr)) {
         return evaluate_literal(literal);
+    } else if (auto call = dynamic_cast<const Call*>(expr)){
+        return evaluate_call(call);
     }
 
     throw std::runtime_error("Unknown expression type");
