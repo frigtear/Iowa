@@ -82,7 +82,6 @@ class Call : public Expression {
 public:
     std::unique_ptr<Expression> callee;
     std::unique_ptr<Arguments> arguments;
-    
 
     Call (std::unique_ptr<Expression> cl, std::unique_ptr<Arguments> args) : callee(std::move(cl)),  arguments(std::move(args)) {}
 };

@@ -124,19 +124,22 @@ Evaluator::evaluation Evaluator::evaluate_expression(const Expression* expr) {
 
 Evaluator::evaluation Evaluator::evaluate_call(const Call* call){
 
-    auto callee = call->callee.get();
+    Expression* callee = call->callee.get();
     auto args = call->arguments.get();
-
-    auto parent = std::move(current_environment);
-    auto clojure = std::make_unique<Environment>(parent.get());
+    auto closure = std::make_unique<Environment>();
 
     for (auto& argument : args->arguments){
         std::cout << "Argument: " << argument.first << std::endl;
         Evaluator::evaluation argument_value = evaluate_expression(argument.second.get());
-        clojure->add_variable(argument.first, argument_value);
+        closure->add_variable(argument.first, argument_value);
     }
 
-    throw std::runtime_error("function calls not implemented yet");
+    const auto& function = std::get<std::shared_ptr<Callable>>(evaluate_expression(callee));
+    auto& env = function->get_closure();
+    const auto& code = &function->get_code(); 
+    std::string name = function->get_name();
+
+    visit_block_statement(code, false);
 }
 
 void Evaluator::evaluate(const std::vector<Statement*>& statements) {

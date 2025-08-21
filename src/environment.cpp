@@ -1,8 +1,26 @@
 #include "environment.h"
+#include "ast.h"
+#include <unordered_map>
+
+std::string Callable::get_name(){
+    return name;
+}
+
+Block& Callable::get_code() const{
+    return *code;
+}
+
+Environment& Callable::get_closure() const{
+    return *closure;
+}
 
 Environment::Environment() : parent(nullptr) {};
 
 Environment::Environment(Environment* env) : parent(env) {};
+
+Environment::Environment(std::unordered_map<std::string, dynamic_type> var) {
+    variables = var;
+}
 
 Environment::dynamic_type Environment::get_variable_value(const std::string& name) const {
     if (variables.contains(name)) {

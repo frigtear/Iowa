@@ -6,7 +6,7 @@
 
 class Evaluator {
 public:
-    using evaluation = std::variant<int, double, std::string, bool>;
+    using evaluation = std::variant<int, double, std::string, bool, std::shared_ptr<Callable>>;
 
     Evaluator();
     ~Evaluator();
