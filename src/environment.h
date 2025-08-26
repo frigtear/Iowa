@@ -8,13 +8,13 @@ class Environment;
 
 class Callable{
     public:
-        Callable(std::unique_ptr<Block> c) : code(std::move(c)) {};
+        Callable(Statement* c) : code(std::move(c)) {};
         std::string get_name();
-        Block& get_code() const;
+        Statement* get_code() const;
         Environment& get_closure() const;
     private:
         std::string name;
-        std::unique_ptr<Block> code;
+        Statement* code;
         std::shared_ptr<Environment> closure;
 };
 

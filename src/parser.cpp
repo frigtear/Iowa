@@ -83,21 +83,37 @@ std::unique_ptr<Declaration> Parser::program() {
 std::unique_ptr<Declaration> Parser::declaration() {
     if (match({TokenType::Set})) {
         return dynamic_declaration();
-    } else {
+    }
+    else if (match({TokenType::Function})){
+        std::cout << "Parsing function" << std::endl;
+        return function_declaration();
+    } 
+    else{
         return statement();
     }
 }
 
 std::unique_ptr<Declaration> Parser::dynamic_declaration() {
-    Token nameToken = consume(TokenType::Identifier, "Expected identifier after 'set'.");
-    std::string variable_name = nameToken.get_value();
+    Token variable_name_token = consume(TokenType::Identifier, "Expected identifier after 'set'.");
+    std::string variable_name = variable_name_token.get_value();
     consume(TokenType::Equals, "Expected '=' after variable name.");
     auto variable_value = expression();
     consume(TokenType::Semicolon, "Expected ';' after variable declaration.");
     return std::make_unique<DynamicDeclaration>(std::move(variable_name), std::move(variable_value));
 }
 
-std::unique_ptr<Declaration> Parser::statement() {
+std::unique_ptr<Declaration> Parser::function_declaration(){
+    std::cout << peek().get_value() << std::endl;
+    Token function_name_token = consume(TokenType::Identifier, "Expected identifier after 'function'");
+    std::string function_name = function_name_token.get_value();
+    consume(TokenType::Equals, "Expected '=' after function name.");
+    consume(TokenType::BracketOpen, "Expected { after equals");
+    auto function_block = block();
+    consume(TokenType::Semicolon, "Expected ';' after block");
+    return std::make_unique<FunctionDeclaration>(std::move(function_name), std::move(function_block));
+}
+
+std::unique_ptr<Statement> Parser::statement() {
     if (match({TokenType::ConsoleOut})) {
         return print_statement();
     } else if (match({TokenType::BracketOpen})) {
@@ -112,9 +128,9 @@ std::unique_ptr<Declaration> Parser::statement() {
 }
 
 std::unique_ptr<Statement> Parser::block() {
-    std::vector<std::unique_ptr<Declaration>> statements;
+    std::vector<std::unique_ptr<Statement>> statements;
     while (!(peek().get_type() == TokenType::BracketClose) && !is_at_end()) {
-        statements.push_back(declaration());
+        statements.push_back(statement());
     }
     consume(TokenType::BracketClose, "Expect '}' after block.");
     return std::make_unique<Block>(std::move(statements));
@@ -243,19 +259,33 @@ std::unique_ptr<Expression> Parser::call(){
 }
 
 std::unique_ptr<Arguments> Parser::arguments(){
-    Token argument;
-    std::unordered_map<std::string, std::unique_ptr<Expression>> args;
-    while (match({TokenType::Identifier}, argument)){
-        std::string argument_name = (argument.get_value());
-        if (args.contains(argument_name)){
-            throw std::runtime_error("No repeating argument names");
-        }
-        consume(TokenType::Equals, "Expected '=' after identifier");
-        args.emplace(argument_name, expression());
+     std::unordered_map<std::string, std::unique_ptr<Expression>> args;
+
+    Token nameTok;
+
+    if (!match({TokenType::Identifier}, nameTok)) {
+        return std::make_unique<Arguments>(std::move(args));
     }
 
-    std::unique_ptr<Arguments> arguments = std::make_unique<Arguments>(std::move(args));
-    return arguments;
+    while (true) {
+        const std::string argument_name = nameTok.get_value();
+        if (args.contains(argument_name)) {
+            throw std::runtime_error("No repeating argument names");
+        }
+
+        consume(TokenType::Equals, "Expected '=' after identifier");
+        args.emplace(argument_name, expression());
+
+
+        Token comma;
+        if (!match({TokenType::Comma}, comma)) break;
+
+        if (!match({TokenType::Identifier}, nameTok)) {
+            throw std::runtime_error("Expected identifier after ',' in arguments");
+        }
+    }
+
+    return std::make_unique<Arguments>(std::move(args));
 }
 
 std::unique_ptr<Expression> Parser::primary() {

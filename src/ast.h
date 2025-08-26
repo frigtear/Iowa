@@ -24,16 +24,6 @@ public:
     virtual ~Statement() = default;
 };
 
-class DynamicDeclaration : public Declaration {
-public:
-    std::string variable_name;
-    std::unique_ptr<Expression> value;
-
-    DynamicDeclaration(std::string name,
-                       std::unique_ptr<Expression> val)
-        : variable_name(std::move(name)), value(std::move(val)) {}
-};
-
 class Literal : public Expression {
 public:
     std::string value;
@@ -107,9 +97,9 @@ public:
 
 class Block : public Statement {
 public:
-    std::vector<std::unique_ptr<Declaration>> declarations;
+    std::vector<std::unique_ptr<Statement>> declarations;
 
-    Block(std::vector<std::unique_ptr<Declaration>> stmts)
+    Block(std::vector<std::unique_ptr<Statement>> stmts)
         : declarations(std::move(stmts)) {}
 };
 
@@ -158,6 +148,24 @@ public:
 
     Program(std::vector<std::unique_ptr<Declaration>> decls)
         : declarations(std::move(decls)) {}
+};
+
+class DynamicDeclaration : public Declaration {
+public:
+    std::string variable_name;
+    std::unique_ptr<Expression> value;
+
+    DynamicDeclaration(std::string name,
+                       std::unique_ptr<Expression> val)
+        : variable_name(std::move(name)), value(std::move(val)) {}
+};
+
+class FunctionDeclaration : public Declaration {
+public:
+    std::string function_name;
+    std::unique_ptr<Statement> function_block;
+
+    FunctionDeclaration(std::string name, std::unique_ptr<Statement> block) : function_name(std::move(name)), function_block(std::move(block)) {}
 };
 
 #endif // EXPRESSIONS_H

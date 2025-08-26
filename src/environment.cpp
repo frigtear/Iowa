@@ -6,8 +6,8 @@ std::string Callable::get_name(){
     return name;
 }
 
-Block& Callable::get_code() const{
-    return *code;
+Statement* Callable::get_code() const{
+    return code;
 }
 
 Environment& Callable::get_closure() const{

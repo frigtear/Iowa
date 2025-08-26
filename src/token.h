@@ -34,6 +34,7 @@ enum class TokenType {
     ParenthesisClose,
     BracketOpen,
     BracketClose,
+    Comma,
 
     // Literals
     String,

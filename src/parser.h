@@ -25,8 +25,9 @@ public:
 
     std::unique_ptr<Declaration> program();
     std::unique_ptr<Declaration> declaration();
-    std::unique_ptr<Declaration> statement();
+    std::unique_ptr<Statement> statement();
     std::unique_ptr<Declaration> dynamic_declaration();
+    std::unique_ptr<Declaration> function_declaration();
 
     std::unique_ptr<Statement> print_statement();
     std::unique_ptr<Statement> if_statement();

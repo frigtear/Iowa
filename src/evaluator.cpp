@@ -135,11 +135,11 @@ Evaluator::evaluation Evaluator::evaluate_call(const Call* call){
     }
 
     const auto& function = std::get<std::shared_ptr<Callable>>(evaluate_expression(callee));
+    evaluation value = closure->get_variable_value(function->get_name());
+    std::shared_ptr<Callable> function_statement = std::get<std::shared_ptr<Callable>>(value);
     auto& env = function->get_closure();
-    const auto& code = &function->get_code(); 
     std::string name = function->get_name();
-
-    visit_block_statement(code, false);
+    evaluate_statement(function_statement->get_code());
 }
 
 void Evaluator::evaluate(const std::vector<Statement*>& statements) {
@@ -153,8 +153,11 @@ void Evaluator::evaluate_declaration(const Declaration* declaration){
         throw std::runtime_error("null declaration encountered during evaluation");
     }
     
-    if (auto decl = dynamic_cast<const DynamicDeclaration*>(declaration)) {
-        visit_dynamic_declaration(decl);
+    if (auto dyn = dynamic_cast<const DynamicDeclaration*>(declaration)) {
+        visit_dynamic_declaration(dyn);
+    }
+    else if (auto func = dynamic_cast<const FunctionDeclaration*>(declaration)){
+        visit_function_declaration(func);
     }
     else if (auto stmnt = dynamic_cast<const Statement*>(declaration)){
         evaluate_statement(stmnt);
@@ -164,20 +167,20 @@ void Evaluator::evaluate_declaration(const Declaration* declaration){
     }
 }
 
-void Evaluator::evaluate_statement(const Declaration* declaration) {
-    if (!declaration) {
+void Evaluator::evaluate_statement(const Statement* statement) {
+    if (!statement) {
         throw std::runtime_error("Null statement encountered during evaluation");
     }
 
-    if (auto print_stmt = dynamic_cast<const PrintStatement*>(declaration)) {
+    if (auto print_stmt = dynamic_cast<const PrintStatement*>(statement)) {
         visit_print_statement(print_stmt);
-    } else if (auto expr_stmt = dynamic_cast<const ExpressionStatement*>(declaration)) {
+    } else if (auto expr_stmt = dynamic_cast<const ExpressionStatement*>(statement)) {
         visit_expression_statement(expr_stmt);
-    } else if (auto block = dynamic_cast<const Block*>(declaration)){
+    } else if (auto block = dynamic_cast<const Block*>(statement)){
         visit_block_statement(block, true);
-    } else if (auto if_stmnt = dynamic_cast<const IfStatement*>(declaration)) {
+    } else if (auto if_stmnt = dynamic_cast<const IfStatement*>(statement)) {
         visit_if_statement(if_stmnt);
-    } else if (auto loop_stmnt = dynamic_cast<const LoopStatement*>(declaration)){
+    } else if (auto loop_stmnt = dynamic_cast<const LoopStatement*>(statement)){
         visit_loop_statement(loop_stmnt);
     } else {
         throw std::runtime_error("Unknown statement type");
@@ -207,6 +210,13 @@ void Evaluator::visit_print_statement(const PrintStatement* stmt) {
 void Evaluator::visit_dynamic_declaration(const DynamicDeclaration* declaration) {
     evaluation value = evaluate_expression(declaration->value.get());
     current_environment->add_variable(declaration->variable_name, value);
+}
+
+void Evaluator::visit_function_declaration(const FunctionDeclaration* declaration){
+    const auto stmnt = declaration->function_block.get();
+    std::string function_name = declaration->function_name;
+    auto function = std::make_shared<Callable>(stmnt);
+    current_environment->add_variable(function_name, function);
 }
 
 void Evaluator::visit_block_statement(const Block* block, bool use_new_scope) {

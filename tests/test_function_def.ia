@@ -1,4 +1,3 @@
 function x = {
     console_out ("Hello world");
-};
-x();
+}

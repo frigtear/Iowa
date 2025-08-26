@@ -30,6 +30,7 @@ std::string Token::get_type_string(TokenType type) {
         case TokenType::GreaterEqualsThan: return "GreaterEqualsThan";
         case TokenType::LessThan: return "LessThan";
         case TokenType::LessEqualsThan: return "LessEqualsThan";
+        case TokenType::Comma: return "Comma";
         case TokenType::Semicolon: return "Semicolon";
         case TokenType::ParenthesisOpen: return "ParenthesisOpen";
         case TokenType::ParenthesisClose: return "ParenthesisClose";
