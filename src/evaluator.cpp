@@ -56,11 +56,11 @@ struct BinaryEvaluator {
             case TokenType::LessEqualsThan:   return l <= r;
 
             case TokenType::EqualsEquals:     return l == r;
-            case TokenType::NotEqual:         return l != r;
+            case TokenType::NotEqual:
+                    return l != r;
 
             default:
-                throw std::runtime_error("Unsupported integer op: " +
-                                         Token::get_type_string(op));
+                throw std::runtime_error("Unsupported integer op: " + Token::get_type_string(op));
         }
     }
 

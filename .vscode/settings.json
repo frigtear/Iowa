@@ -74,5 +74,6 @@
         "span": "cpp",
         "text_encoding": "cpp"
     },
-    "C_Cpp.default.configurationProvider": "ms-vscode.cpptools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cpptools",
+    "idf.pythonInstallPath": "/Library/Frameworks/Python.framework/Versions/3.10/bin/python3"
 }
