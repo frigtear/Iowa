@@ -5,7 +5,7 @@ Evaluator::Evaluator(){
     current_environment = std::make_unique<Environment>();
 }
 
-Evaluator::~Evaluator() = default;  
+Evaluator::~Evaluator() = default;
 
 Evaluator::evaluation Evaluator::evaluate_literal(const Literal* literal) {
     if (!literal) {
@@ -34,7 +34,7 @@ Evaluator::evaluation Evaluator::evaluate_literal(const Literal* literal) {
 }
 
 Evaluator::evaluation Evaluator::evaluate_identifier(const Identifier* identifier) {
-    return current_environment->get_variable_value(identifier->identifier_name); 
+    return current_environment->get_variable_value(identifier->identifier_name);
 }
 
 
@@ -134,12 +134,12 @@ Evaluator::evaluation Evaluator::evaluate_call(const Call* call){
         closure->add_variable(argument.first, argument_value);
     }
 
-    const auto& function = std::get<std::shared_ptr<Callable>>(evaluate_expression(callee));
-    evaluation value = closure->get_variable_value(function->get_name());
-    std::shared_ptr<Callable> function_statement = std::get<std::shared_ptr<Callable>>(value);
-    auto& env = function->get_closure();
-    std::string name = function->get_name();
-    evaluate_statement(function_statement->get_code());
+    auto function = std::get<std::shared_ptr<Callable>>(evaluate_expression(callee));
+    auto temp_environment = std::move(current_environment);
+    current_environment = std::move(closure);
+    evaluate_statement(function->get_code());
+    current_environment = std::move(temp_environment);
+    return evaluation{}; // Placeholder until function return values are implemented.
 }
 
 void Evaluator::evaluate(const std::vector<Statement*>& statements) {
@@ -152,7 +152,7 @@ void Evaluator::evaluate_declaration(const Declaration* declaration){
     if (!declaration){
         throw std::runtime_error("null declaration encountered during evaluation");
     }
-    
+
     if (auto dyn = dynamic_cast<const DynamicDeclaration*>(declaration)) {
         visit_dynamic_declaration(dyn);
     }
@@ -235,7 +235,7 @@ void Evaluator::visit_block_statement(const Block* block, bool use_new_scope) {
             evaluate_declaration(declaration.get());
         }
     }
- 
+
 }
 
 void Evaluator::visit_if_statement(const IfStatement* if_stmnt){
