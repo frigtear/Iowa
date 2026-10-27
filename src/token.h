@@ -26,6 +26,7 @@ enum class TokenType {
     ConsoleOut,
     Set,
     Loop,
+    Function,
 
     // Symbols
     Semicolon,
@@ -33,6 +34,7 @@ enum class TokenType {
     ParenthesisClose,
     BracketOpen,
     BracketClose,
+    Comma,
 
     // Literals
     String,
@@ -45,6 +47,7 @@ enum class TokenType {
 
 class Token {
 public:
+    Token();
     Token(std::string val, TokenType type);
     std::string get_value() const;
     TokenType get_type() const;

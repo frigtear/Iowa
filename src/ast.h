@@ -24,16 +24,6 @@ public:
     virtual ~Statement() = default;
 };
 
-class DynamicDeclaration : public Declaration {
-public:
-    std::string variable_name;
-    std::unique_ptr<Expression> value;
-
-    DynamicDeclaration(std::string name,
-                       std::unique_ptr<Expression> val)
-        : variable_name(std::move(name)), value(std::move(val)) {}
-};
-
 class Literal : public Expression {
 public:
     std::string value;
@@ -57,10 +47,8 @@ public:
     TokenType op;
     std::unique_ptr<Expression> right;
 
-    BinaryExpression(std::unique_ptr<Expression> l,
-                     TokenType o,
-                     std::unique_ptr<Expression> r)
-        : left(std::move(l)), op(o), right(std::move(r)) {}
+    BinaryExpression(std::unique_ptr<Expression> l, TokenType o, std::unique_ptr<Expression> r) 
+                     : left(std::move(l)), op(o), right(std::move(r)) {}
 };
 
 class Identifier : public Expression{
@@ -70,6 +58,24 @@ public:
     Identifier(std::string name)
         : identifier_name(std::move(name)) {}
 };
+
+
+class Arguments : public Expression {
+public:
+    std::unordered_map<std::string, std::unique_ptr<Expression>> arguments;
+
+    Arguments(std::unordered_map<std::string, std::unique_ptr<Expression>> args) : arguments(std::move(args)) {};
+};
+
+
+class Call : public Expression {
+public:
+    std::unique_ptr<Expression> callee;
+    std::unique_ptr<Arguments> arguments;
+
+    Call (std::unique_ptr<Expression> cl, std::unique_ptr<Arguments> args) : callee(std::move(cl)),  arguments(std::move(args)) {}
+};
+
 
 class Assignment : public Statement {
 public:
@@ -91,9 +97,9 @@ public:
 
 class Block : public Statement {
 public:
-    std::vector<std::unique_ptr<Declaration>> declarations;
+    std::vector<std::unique_ptr<Statement>> declarations;
 
-    Block(std::vector<std::unique_ptr<Declaration>> stmts)
+    Block(std::vector<std::unique_ptr<Statement>> stmts)
         : declarations(std::move(stmts)) {}
 };
 
@@ -142,6 +148,24 @@ public:
 
     Program(std::vector<std::unique_ptr<Declaration>> decls)
         : declarations(std::move(decls)) {}
+};
+
+class DynamicDeclaration : public Declaration {
+public:
+    std::string variable_name;
+    std::unique_ptr<Expression> value;
+
+    DynamicDeclaration(std::string name,
+                       std::unique_ptr<Expression> val)
+        : variable_name(std::move(name)), value(std::move(val)) {}
+};
+
+class FunctionDeclaration : public Declaration {
+public:
+    std::string function_name;
+    std::unique_ptr<Statement> function_block;
+
+    FunctionDeclaration(std::string name, std::unique_ptr<Statement> block) : function_name(std::move(name)), function_block(std::move(block)) {}
 };
 
 #endif // EXPRESSIONS_H

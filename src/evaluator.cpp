@@ -5,7 +5,7 @@ Evaluator::Evaluator(){
     current_environment = std::make_unique<Environment>();
 }
 
-Evaluator::~Evaluator() = default;  
+Evaluator::~Evaluator() = default;
 
 Evaluator::evaluation Evaluator::evaluate_literal(const Literal* literal) {
     if (!literal) {
@@ -34,7 +34,7 @@ Evaluator::evaluation Evaluator::evaluate_literal(const Literal* literal) {
 }
 
 Evaluator::evaluation Evaluator::evaluate_identifier(const Identifier* identifier) {
-    return current_environment->get_variable_value(identifier->identifier_name); 
+    return current_environment->get_variable_value(identifier->identifier_name);
 }
 
 
@@ -56,11 +56,11 @@ struct BinaryEvaluator {
             case TokenType::LessEqualsThan:   return l <= r;
 
             case TokenType::EqualsEquals:     return l == r;
-            case TokenType::NotEqual:         return l != r;
+            case TokenType::NotEqual:
+                    return l != r;
 
             default:
-                throw std::runtime_error("Unsupported integer op: " +
-                                         Token::get_type_string(op));
+                throw std::runtime_error("Unsupported integer op: " + Token::get_type_string(op));
         }
     }
 
@@ -115,9 +115,31 @@ Evaluator::evaluation Evaluator::evaluate_expression(const Expression* expr) {
         return evaluate_identifier(identifier);
     } else if (auto literal = dynamic_cast<const Literal*>(expr)) {
         return evaluate_literal(literal);
+    } else if (auto call = dynamic_cast<const Call*>(expr)){
+        return evaluate_call(call);
     }
 
     throw std::runtime_error("Unknown expression type");
+}
+
+Evaluator::evaluation Evaluator::evaluate_call(const Call* call){
+
+    Expression* callee = call->callee.get();
+    auto args = call->arguments.get();
+    auto closure = std::make_unique<Environment>();
+
+    for (auto& argument : args->arguments){
+        std::cout << "Argument: " << argument.first << std::endl;
+        Evaluator::evaluation argument_value = evaluate_expression(argument.second.get());
+        closure->add_variable(argument.first, argument_value);
+    }
+
+    auto function = std::get<std::shared_ptr<Callable>>(evaluate_expression(callee));
+    auto temp_environment = std::move(current_environment);
+    current_environment = std::move(closure);
+    evaluate_statement(function->get_code());
+    current_environment = std::move(temp_environment);
+    return evaluation{}; // Placeholder until function return values are implemented.
 }
 
 void Evaluator::evaluate(const std::vector<Statement*>& statements) {
@@ -130,9 +152,12 @@ void Evaluator::evaluate_declaration(const Declaration* declaration){
     if (!declaration){
         throw std::runtime_error("null declaration encountered during evaluation");
     }
-    
-    if (auto decl = dynamic_cast<const DynamicDeclaration*>(declaration)) {
-        visit_dynamic_declaration(decl);
+
+    if (auto dyn = dynamic_cast<const DynamicDeclaration*>(declaration)) {
+        visit_dynamic_declaration(dyn);
+    }
+    else if (auto func = dynamic_cast<const FunctionDeclaration*>(declaration)){
+        visit_function_declaration(func);
     }
     else if (auto stmnt = dynamic_cast<const Statement*>(declaration)){
         evaluate_statement(stmnt);
@@ -142,20 +167,20 @@ void Evaluator::evaluate_declaration(const Declaration* declaration){
     }
 }
 
-void Evaluator::evaluate_statement(const Declaration* declaration) {
-    if (!declaration) {
+void Evaluator::evaluate_statement(const Statement* statement) {
+    if (!statement) {
         throw std::runtime_error("Null statement encountered during evaluation");
     }
 
-    if (auto print_stmt = dynamic_cast<const PrintStatement*>(declaration)) {
+    if (auto print_stmt = dynamic_cast<const PrintStatement*>(statement)) {
         visit_print_statement(print_stmt);
-    } else if (auto expr_stmt = dynamic_cast<const ExpressionStatement*>(declaration)) {
+    } else if (auto expr_stmt = dynamic_cast<const ExpressionStatement*>(statement)) {
         visit_expression_statement(expr_stmt);
-    } else if (auto block = dynamic_cast<const Block*>(declaration)){
+    } else if (auto block = dynamic_cast<const Block*>(statement)){
         visit_block_statement(block, true);
-    } else if (auto if_stmnt = dynamic_cast<const IfStatement*>(declaration)) {
+    } else if (auto if_stmnt = dynamic_cast<const IfStatement*>(statement)) {
         visit_if_statement(if_stmnt);
-    } else if (auto loop_stmnt = dynamic_cast<const LoopStatement*>(declaration)){
+    } else if (auto loop_stmnt = dynamic_cast<const LoopStatement*>(statement)){
         visit_loop_statement(loop_stmnt);
     } else {
         throw std::runtime_error("Unknown statement type");
@@ -187,6 +212,13 @@ void Evaluator::visit_dynamic_declaration(const DynamicDeclaration* declaration)
     current_environment->add_variable(declaration->variable_name, value);
 }
 
+void Evaluator::visit_function_declaration(const FunctionDeclaration* declaration){
+    const auto stmnt = declaration->function_block.get();
+    std::string function_name = declaration->function_name;
+    auto function = std::make_shared<Callable>(stmnt);
+    current_environment->add_variable(function_name, function);
+}
+
 void Evaluator::visit_block_statement(const Block* block, bool use_new_scope) {
 
     if (use_new_scope){
@@ -203,7 +235,7 @@ void Evaluator::visit_block_statement(const Block* block, bool use_new_scope) {
             evaluate_declaration(declaration.get());
         }
     }
- 
+
 }
 
 void Evaluator::visit_if_statement(const IfStatement* if_stmnt){

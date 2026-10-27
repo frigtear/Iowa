@@ -1,5 +1,7 @@
 #include "token.h"
 
+Token::Token() {}
+
 Token::Token(std::string val, TokenType t) {
     value = val;
     type = t;
@@ -28,6 +30,7 @@ std::string Token::get_type_string(TokenType type) {
         case TokenType::GreaterEqualsThan: return "GreaterEqualsThan";
         case TokenType::LessThan: return "LessThan";
         case TokenType::LessEqualsThan: return "LessEqualsThan";
+        case TokenType::Comma: return "Comma";
         case TokenType::Semicolon: return "Semicolon";
         case TokenType::ParenthesisOpen: return "ParenthesisOpen";
         case TokenType::ParenthesisClose: return "ParenthesisClose";
@@ -42,6 +45,7 @@ std::string Token::get_type_string(TokenType type) {
         case TokenType::Number: return "Number";
         case TokenType::Boolean: return "Boolean"; 
         case TokenType::Identifier: return "Identifier";
+        case TokenType::Function: return "Function";
         case TokenType::Eof: return "EOF";
         default: return "Unknown";
     }

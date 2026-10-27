@@ -153,6 +153,10 @@ std::vector<Token> scan_source(char* path){
                 scanner.add_token("/", TokenType::Divide);
                 break;
             }
+            case ',':{
+                scanner.add_token(",", TokenType::Comma);
+                break;
+            };
             case '|':
                 if (source_code.peek() == '|'){
                     scanner.add_token("||", TokenType::Or);
@@ -217,6 +221,9 @@ std::vector<Token> scan_source(char* path){
                     }
                     else if (word == "false"){
                         scanner.add_token(word, TokenType::Boolean);
+                    }
+                    else if (word == "function"){
+                        scanner.add_token(word, TokenType::Function);
                     }
                     else{
                         scanner.add_token(word, TokenType::Identifier);

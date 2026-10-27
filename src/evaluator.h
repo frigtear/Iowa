@@ -6,7 +6,7 @@
 
 class Evaluator {
 public:
-    using evaluation = std::variant<int, double, std::string, bool>;
+    using evaluation = std::variant<int, double, std::string, bool, std::shared_ptr<Callable>>;
 
     Evaluator();
     ~Evaluator();
@@ -16,11 +16,12 @@ public:
     void evaluate(const std::vector<Statement*>& statements);               
 
     void evaluate_declaration(const Declaration* declaration);
-    void evaluate_statement(const Declaration* declaration);
+    void evaluate_statement(const Statement* declaration);
 
     void visit_expression_statement(const ExpressionStatement* statement);
     void visit_print_statement(const PrintStatement* stmt);
     void visit_dynamic_declaration(const DynamicDeclaration* declaration);
+    void visit_function_declaration(const FunctionDeclaration* declaration);
     void visit_block_statement(const Block* block, bool use_new_scope);
     void visit_if_statement(const IfStatement* if_stmnt);
     void visit_loop_statement(const LoopStatement* loop_stmnt);
@@ -29,6 +30,7 @@ public:
     evaluation evaluate_binary(const BinaryExpression* binary);
     evaluation evaluate_identifier(const Identifier* identifier);
     evaluation evaluate_literal(const Literal* literal);
+    evaluation evaluate_call(const Call* call);
 
 private:
     std::unique_ptr<Environment> current_environment; 
