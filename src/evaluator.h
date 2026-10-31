@@ -1,7 +1,6 @@
 #pragma once
 #include <variant>
 #include <memory>
-#include "ast.h"
 #include "environment.h"
 
 class Evaluator {
@@ -10,10 +9,10 @@ public:
 
     Evaluator();
     ~Evaluator();
-    
+
     void execute_program(const Program* program);
-    void evaluate(const std::vector<std::unique_ptr<Statement>>& statements); 
-    void evaluate(const std::vector<Statement*>& statements);               
+    void evaluate(const std::vector<std::unique_ptr<Statement>>& statements);
+    void evaluate(const std::vector<Statement*>& statements);
 
     void evaluate_declaration(const Declaration* declaration);
     void evaluate_statement(const Statement* declaration);
@@ -33,5 +32,5 @@ public:
     evaluation evaluate_call(const Call* call);
 
 private:
-    std::unique_ptr<Environment> current_environment; 
+    std::unique_ptr<Environment> current_environment;
 };

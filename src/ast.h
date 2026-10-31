@@ -2,6 +2,7 @@
 #define EXPRESSIONS_H
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <variant>
 #include <memory>
@@ -29,8 +30,7 @@ public:
     std::string value;
     TokenType type;
 
-    Literal(std::string val, TokenType t)
-        : value(std::move(val)), type(t) {}
+    Literal(std::string val, TokenType t) : value(std::move(val)), type(t) {}
 };
 
 class IdentifierExpr : public Expression {
@@ -47,16 +47,14 @@ public:
     TokenType op;
     std::unique_ptr<Expression> right;
 
-    BinaryExpression(std::unique_ptr<Expression> l, TokenType o, std::unique_ptr<Expression> r) 
-                     : left(std::move(l)), op(o), right(std::move(r)) {}
+    BinaryExpression(std::unique_ptr<Expression> l, TokenType o, std::unique_ptr<Expression> r)  : left(std::move(l)), op(o), right(std::move(r)) {}
 };
 
 class Identifier : public Expression{
 public:
     std::string identifier_name;
 
-    Identifier(std::string name)
-        : identifier_name(std::move(name)) {}
+    Identifier(std::string name) : identifier_name(std::move(name)) {}
 };
 
 
@@ -82,25 +80,21 @@ public:
     std::unique_ptr<IdentifierExpr> variable;
     std::unique_ptr<Expression> value;
 
-    Assignment(std::unique_ptr<IdentifierExpr> var,
-               std::unique_ptr<Expression> val)
-        : variable(std::move(var)), value(std::move(val)) {}
+    Assignment(std::unique_ptr<IdentifierExpr> var, std::unique_ptr<Expression> val) : variable(std::move(var)), value(std::move(val)) {}
 };
 
 class ExpressionStatement : public Statement {
 public:
     std::unique_ptr<Expression> expr;
 
-    ExpressionStatement(std::unique_ptr<Expression> e)
-        : expr(std::move(e)) {}
+    ExpressionStatement(std::unique_ptr<Expression> e) : expr(std::move(e)) {}
 };
 
 class Block : public Statement {
 public:
     std::vector<std::unique_ptr<Statement>> declarations;
 
-    Block(std::vector<std::unique_ptr<Statement>> stmts)
-        : declarations(std::move(stmts)) {}
+    Block(std::vector<std::unique_ptr<Statement>> stmts) : declarations(std::move(stmts)) {}
 };
 
 class IfStatement : public Statement {
@@ -110,12 +104,7 @@ public:
     std::unique_ptr<Block> else_block;
     bool has_else_block;
 
-    IfStatement(std::unique_ptr<Expression> cond,
-                std::unique_ptr<Block> ib,
-                std::unique_ptr<Block> eb)
-        : condition(std::move(cond)),
-          if_block(std::move(ib)),
-          else_block(std::move(eb)) {
+    IfStatement(std::unique_ptr<Expression> cond, std::unique_ptr<Block> ib, std::unique_ptr<Block> eb) : condition(std::move(cond)), if_block(std::move(ib)), else_block(std::move(eb)) {
         if (else_block == nullptr){
             has_else_block = false;
         } else {
@@ -129,9 +118,7 @@ public:
     std::unique_ptr<Expression> condition;
     std::unique_ptr<Block> loop_block;
 
-    LoopStatement(std::unique_ptr<Expression> cond,
-                  std::unique_ptr<Block> lb)
-        : condition(std::move(cond)), loop_block(std::move(lb)) {}
+    LoopStatement(std::unique_ptr<Expression> cond, std::unique_ptr<Block> lb) : condition(std::move(cond)), loop_block(std::move(lb)) {}
 };
 
 class PrintStatement : public Statement {
