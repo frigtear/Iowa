@@ -1,0 +1,5 @@
+function greet = {
+    console_out (name);
+};
+
+greet(name = "Reuben");

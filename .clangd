@@ -1,0 +1,4 @@
+CompileFlags:
+  Add:
+    - -std=c++2b
+    - -I/opt/homebrew/opt/llvm/include
