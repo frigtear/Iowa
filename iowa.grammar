@@ -1,6 +1,7 @@
 Program        → Declaration* EOF ;
 
 Declaration    → DynamicDecl 
+               | FunctionDecl
                | Statement ;
 
 Statement       → ExpressionStatement
@@ -9,8 +10,9 @@ Statement       → ExpressionStatement
                 | PrintStatement
                 | Loop ;
 
-Block           → "{" Statement* "}" ;
+Block           → "{" Declaration* "}" ;
 DynamicDecl     → "set" Identifier "=" Expression ";" ;
+FunctionDecl    → "function" Identifier "=" Block ";" ;
 
 Expression      → Equality;
 Equality        → Comparison (EqualityOperator Comparison)* ;
@@ -26,7 +28,8 @@ If              → "if" "(" Expression ")" Block ("else" Block)? ;
 Loop            → "loop" "(" Expression ")" Block ;
 PrintStatement  → "set" "(" Expression ")";
 
-Literal         → Number | String ;
+Literal         → Number | String | Boolean ;
+Boolean         → "true" | "false" ;
 Identifier      → [a-zA-Z_][a-zA-Z0-9_]* ;
 Number          → [0-9]+ ;
 String          → "\"" .*? "\"" ;

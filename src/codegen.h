@@ -11,7 +11,11 @@ public:
     Codegen();
 
     llvm::Value* codegen_binary_expression(const BinaryExpression* binary_expression);
-    llvm::Value* codegen_expression(const Expression* expr);
+    llvm::Value* codegen_expression(const Expression* expression);
+    llvm::Value* codegen_literal(const Literal* literal);
+    llvm::Value* codegen_identifier(const Identifier* identifier);
+    llvm::Value* codegen_call(const Call* call);
+    llvm::Function* codegen_function_declaration(const FunctionDeclaration* declaration);
 
 private:
     std::unique_ptr<llvm::LLVMContext> context;

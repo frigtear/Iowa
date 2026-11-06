@@ -92,9 +92,9 @@ public:
 
 class Block : public Statement {
 public:
-    std::vector<std::unique_ptr<Statement>> declarations;
+    std::vector<std::unique_ptr<Declaration>> declarations;
 
-    Block(std::vector<std::unique_ptr<Statement>> stmts) : declarations(std::move(stmts)) {}
+    Block(std::vector<std::unique_ptr<Declaration>> decls) : declarations(std::move(decls)) {}
 };
 
 class IfStatement : public Statement {

@@ -128,12 +128,12 @@ std::unique_ptr<Statement> Parser::statement() {
 }
 
 std::unique_ptr<Statement> Parser::block() {
-    std::vector<std::unique_ptr<Statement>> statements;
+    std::vector<std::unique_ptr<Declaration>> declarations;
     while (!(peek().get_type() == TokenType::BracketClose) && !is_at_end()) {
-        statements.push_back(statement());
+        declarations.push_back(declaration());
     }
     consume(TokenType::BracketClose, "Expect '}' after block.");
-    return std::make_unique<Block>(std::move(statements));
+    return std::make_unique<Block>(std::move(declarations));
 }
 
 std::unique_ptr<Statement> Parser::expression_statement() {
